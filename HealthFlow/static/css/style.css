@@ -1,0 +1,51 @@
+::-webkit-scrollbar {
+  display: none;
+}
+
+@font-face {
+    font-family: 'Yandex-bold';
+    src: url('/font/YandexSansDisplay-Bold.ttf');
+}
+
+:root {
+  --bg-color: #418AAD;
+  --bg-secondary-color: #f3f3f6;
+  --color-primary: #14854F;
+  --color-lightGrey: #d2d6dd;
+  --color-grey: #747681;
+  --color-darkGrey: #3f4144;
+  --color-error: #d43939;
+  --color-success: #28bd14;
+  --grid-maxWidth: 120rem;
+  --grid-gutter: 2rem;
+  --font-size: 1.6rem;
+  --font-color: #333333;
+  --font-family: 'Yandex-bold';
+}
+
+body {
+  margin: 0%;
+  overflow: hidden;
+  background: rgb(20  , 25, 45);
+  font-family: 'Yandex-bold';
+}
+
+a {
+  font-family: arial;
+  border-radius: 3px;
+  padding: 9px;
+  background: red;
+  text-decoration: none;
+  color: white;
+  position: fixed;
+  right: 50%;
+  transform: translate(50%, 0);
+}
+canvas {
+  display: block;
+  background: #052249;
+}
+canvas {
+  position: absolute;
+  z-index: -1;
+}
