@@ -3,12 +3,26 @@ class GradientAnimation {
     this.cnv        = document.querySelector(`canvas`);
     this.ctx        = this.cnv.getContext(`2d`);
 
+    // Устанавливаем ширину и высоту canvas
+    this.cnv.width  = window.innerWidth;
+    this.cnv.height = 1080;
+
+    // Масштабируем ctx
+    this.ctx.scale(this.cnv.width / window.innerWidth, 1080 / this.cnv.height);
+
     this.circlesNum = 15;
     this.minRadius  = 900;
     this.maxRadius  = 900;
     this.speed      = .003;
 
     (window.onresize = () => {
+      // При изменении размеров окна пересчитываем ширину и высоту canvas
+      this.cnv.width  = window.innerWidth;
+      this.cnv.height = 1080;
+
+      // Масштабируем ctx
+      this.ctx.scale(this.cnv.width / window.innerWidth, 1080 / this.cnv.height);
+
       this.setCanvasSize();
       this.createCircles();
     })();
@@ -16,9 +30,8 @@ class GradientAnimation {
 
   }
   setCanvasSize() {
-    this.w = this.cnv.width  = innerWidth * devicePixelRatio;
-    this.h = this.cnv.height = innerHeight * devicePixelRatio;
-    this.ctx.scale(devicePixelRatio, devicePixelRatio)
+    this.w = this.cnv.width;
+    this.h = this.cnv.height;
   }
   createCircles() {
     this.circles = [];
