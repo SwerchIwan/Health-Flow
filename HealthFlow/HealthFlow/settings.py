@@ -44,7 +44,6 @@ INSTALLED_APPS = [
     'home',
     'subscription',
     'support',
-
 ]
 
 MIDDLEWARE = [
