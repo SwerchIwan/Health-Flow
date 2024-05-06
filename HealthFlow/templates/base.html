@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon"  type="image/png" href="{% static '/css/img/icon.ico' %}" sizes="32x32"/>
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>{% block title %} {% endblock %}</title>
+    <link rel="stylesheet" href="https://unpkg.com/chota@latest">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/standart.css' %}">
+
+    <script src="{% static 'js/script.js' %}"></script>
+</head>
+<body>
+    {% block canvas %} {% endblock %}
+    <header>
+        <div class="__header row">
+            <div class="col logo is-center">
+                        <a href="">
+                            <span class="__logo">
+                                <div class="__logo-png ">
+                                    <img src="{% static 'css/img/logo.png' %}" alt="">
+                                </div>
+                                <div class="__logo-text">
+                                    <div class="__logo-head-text">
+                                        <p>HEALTH FLOW AI</p>
+                                    </div>
+                                    <div class="logo-min-text">
+                                        The pulse of modern medicine
+                                    </div>
+                                </div>
+                            </span>
+                        </a>
+                    </div>
+                    <div class="col-8 menu is-right">
+                        <a href="" class="elem-menu">О нас</a>
+                        <a href="type-subscription/" class="elem-menu">Подписки</a>
+                        <a href="support/" class="elem-menu">Поддержка</a>
+                    </div>
+            <div class="col-1 right-button  is-center"><a class="button outline" style="color:white;" href="">Кнопка</a> </div>
+        </div>
+    </header>
+    {% block content %} {% endblock %}
+
+
+</body>
+</html>
