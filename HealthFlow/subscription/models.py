@@ -1,3 +1,9 @@
 from django.db import models
 
-# Create your models here.
+
+class Subscriptions(models.Model):
+    name = models.CharField(max_length=25)
+    price = models.FloatField()
+    description = models.JSONField()
+
+
