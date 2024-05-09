@@ -24,5 +24,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', index_page),
     path('type-subscription/', sub_page),
-    path('support/', support_page),
+
+    path('support/', support_page, name='support_page'),
 ]

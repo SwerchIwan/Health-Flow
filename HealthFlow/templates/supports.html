@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %} HealthFlow-AI{% endblock %}
+
+{% block canvas %}<canvas></canvas>{% endblock %}
+
+
+{% block content %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('form').submit(function (event) {
+            event.preventDefault(); // Предотвращаем стандартное поведение формы (перезагрузку страницы)
+
+            var formData = $(this).serialize(); // Получаем данные формы
+
+            $.ajax({
+                type: 'POST',
+                url: '{% url "support_page" %}',
+                data: formData,
+                success: function (data) {
+                    $('#chat-response').html(data.msg); // Обновляем содержимое элемента с ответом
+                }
+            });
+        });
+    });
+</script>
+
+<div class="intro">
+        <div class="__intro">
+
+            <div class="title-text is-full-width">
+                <div class="__title-text text-center">
+                    <div class="__title-text-main">
+                        <h1>Как же хорошо, что твоя мама не в курсе</h1>
+                    </div>
+                    <div class="__title-text-side">
+                        <p>И еще немного текста и вот еще чуть.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="chat-ai ">
+                <div class="__chat-ai">
+                    <div class="block-chat-ai is-full-width">
+                        <form action="{% url 'support_page' %}" method="post">
+                            {% csrf_token %}
+                            <div class="input-stroke row is-center ">
+                                <div class="input-chat-ai"><input name="msg" type="text"></div>
+                                <div class="button-chat-ai">
+                                    <button type="submit" class="button icon-only">
+                                        <img src="https://icongr.am/feather/search.svg?size=24">
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                        <p id="chat-response">{{ msg }}</p>
+
+
+                    </div>
+                </div>
+            </div>
+            <div class="change-color is-full-width">
+                <div class="__change-color text-center">
+                    <button href="" class="button outline ">B</button>
+                    <button href="" class="button outline ">W</button>
+                </div>
+            </div>
+        </div>
+</div>
+
+{% endblock %}
