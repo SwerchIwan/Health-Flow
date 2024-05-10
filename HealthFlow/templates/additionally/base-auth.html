@@ -1,0 +1,91 @@
+<!doctype html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="https://unpkg.com/chota@latest">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/standart.css' %}">
+    <link rel="stylesheet" href="{% static 'css/auth.css' %}">
+    <script src="{% static 'js/script.js' %}"></script>
+    <title> {% block title %} Регистрация {% endblock %}</title>
+    <script>
+                        function changePlaceholder(type) {
+                            const inputField = document.getElementById('inputField');
+                            const phoneBtn = document.getElementById('phone');
+                            const emailBtn = document.getElementById('email');
+                            if (type === 'phone') {
+                                inputField.placeholder = 'Введите номер телефона';
+                                phoneBtn.classList.add("active");
+                                emailBtn.classList.remove("active");
+                            } else if (type === 'email') {
+                                inputField.placeholder = 'Введите почту';
+                                emailBtn.classList.add("active");
+                                phoneBtn.classList.remove("active");
+                            }
+                        }
+    </script>
+</head>
+<body>
+    <canvas  class="is-full-screen"></canvas>
+    <div class="block-auth is-full-screen is-center ">
+        <div class="__block-auth">
+            <div class="__block-auth-elem text-center is-horizontal-align ">
+                <div class="header-logo">
+                    <div class="__logo-png ">
+                        <img src="{% static 'css/img/logo-dark.png' %}" alt="">
+                    </div>
+                    <div class="__logo-text">
+                        <div class="__logo-head-text">
+                            <p>HEALTH FLOW AI</p>
+                        </div>
+                        <div class="logo-min-text">
+                            The pulse of modern medicine
+                        </div>
+                    </div>
+                    </div>
+                </div>
+                <div class="block-title text-center">
+                    <p>{% block information %} Остался один шаг до здоровья {% endblock %}</p>
+                </div>
+
+                <div class="elem-panel">
+                    <form action="" method="post">
+                        <div class="__elem-panel">
+                            {% block elem_panel %}
+                            <nav class="tabs is-full">
+                                <a href="#" id="phone" onclick="changePlaceholder('phone')">Телефон</a>
+                                <a href="#" id="email" onclick="changePlaceholder('email')">Почта</a>
+                            </nav>
+                            <input type="text" id="inputField" placeholder="Введите номер телефона">
+                            {% endblock %}
+                            <button class="button dark is-full-width" type="submit">{% block btn_func %} Войти {% endblock %}</button>
+                            <button class="button outline is-full-width" type="button">{% block btn_func_two %} Создать профиль {% endblock %}</button>
+                        </div>
+                    </form>
+                </div>
+            <div class="block-additionally">
+                <div class="title-additionally text-center">
+                    <p class="info-login">Войти с помощью:</p>
+                </div>
+                <div class="__block-additionally">
+                    <div class="__block-additionally-elem ">
+                        <div class="button outline">
+                            <img src="{% static 'css/img/google.png' %}" alt="">
+                            <p>Google</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+
+
+
+    </div>
+</body>
+</html>
