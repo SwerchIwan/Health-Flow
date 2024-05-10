@@ -1,0 +1,122 @@
+body{
+      overflow-y: hidden;
+      box-sizing: border-box;
+}
+
+
+:root {
+  --color-dark: black;
+  --color-primary: black;
+  --font-family: 'Yandex-bold';
+  --maxWidth: 1600px;
+}
+
+
+.__block-auth{
+    max-width: 376px;
+    max-height: 620px;
+    min-width: 300px;
+    min-height: 500px;
+    width: 400px;
+    height: 800px;
+
+}
+
+.__logo-png{
+    color: var(--color-dark);
+    width: 60px;
+    height: 60px;
+}
+
+.__logo-png{
+    margin: 0 auto;
+}
+
+.block-title{
+    margin-top: 15px;
+}
+
+.block-title p{
+    font-size: 25px;
+}
+
+.__logo-head-text{
+    font-size: 32px;
+}
+
+
+.tabs{
+    border: solid 2px #DBDBDB;
+    border-radius: 10px;
+}
+
+.elem-panel{
+    margin-top: 20px;
+}
+
+.__elem-panel input, .__elem-panel button{
+    margin-top: 20px;
+}
+
+.__elem-panel input {
+    border: solid 1px #DBDBDB; /* Make the initial border transparent */
+    border-radius: 10px;
+}
+
+.__elem-panel input:focus {
+    border-color: #333333; /* Change the border color when focused */
+}
+
+.button+.button{
+    margin-left: 0px;
+}
+
+.block-additionally{
+    margin-top: 25px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.title-additionally p{
+    font-size: 20px;
+}
+
+.__block-additionally{
+    display: flex;
+    justify-content: space-around;
+}
+
+.__block-additionally-elem{
+    margin-top: 0px;
+
+}
+
+.__block-additionally-elem .button{
+    display: flex;
+    align-items: center;
+    padding: 0xp;
+    border: 2px solid #000;
+    border-radius: 5px;
+}
+
+
+
+.__block-additionally-elem .button img {
+    max-width: 30px; /* настроить размер изображения по желанию */
+    display: block;
+    align-items: center;
+}
+
+.__block-additionally-elem .button p {
+    margin: 0;
+    text-align: center;
+    margin-left: 10px;
+}
+
+.title-additionally{
+     border: solid 2px #333333;
+     padding: 10px;
+     border-radius: 5px;
+
+}

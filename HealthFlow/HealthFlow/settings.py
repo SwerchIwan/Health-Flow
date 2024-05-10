@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'home',
     'subscription',
     'support',
+    'authorization_reg',
 ]
 
 MIDDLEWARE = [
@@ -61,7 +62,7 @@ ROOT_URLCONF = 'HealthFlow.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': ['templates'],
+        'DIRS': ['templates', 'templates/additionally'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
