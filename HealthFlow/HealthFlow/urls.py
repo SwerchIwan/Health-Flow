@@ -16,10 +16,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from home.views import index_page
+from home.views import index_page, window_page
 from subscription.views import sub_page
 from support.views import support_page
 from authorization_reg.views import auth_page
+from django.views.generic import TemplateView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -27,4 +28,5 @@ urlpatterns = [
     path('type-subscription/', sub_page),
     path('support/', support_page, name='support_page'),
     path('accounts', auth_page, name='auth_page'),
+    path('window', TemplateView.as_view(template_name="window.html"), name='window'),
 ]

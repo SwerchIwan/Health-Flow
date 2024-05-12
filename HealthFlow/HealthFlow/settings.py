@@ -54,8 +54,10 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'HealthFlow.middleware.XFrameOptionsMiddleware',  # Place your custom middleware before the default one
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',  # Default Django middleware
 ]
+
 
 ROOT_URLCONF = 'HealthFlow.urls'
 
