@@ -1,0 +1,177 @@
+.corner-popup {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #ffffff;
+    border: 1px solid #ccc;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+    width: 300px; /* Изначальная ширина */
+    height: 200px; /* Изначальная высота */
+    transition: all 0.3s ease; /* Добавляем плавную анимацию */
+    overflow: hidden; /* Скрытие содержимого, если оно не помещается в маленьком окне */
+}
+
+.title-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #f0f0f0;
+    padding: 5px 10px;
+    border-bottom: 1px solid #ccc;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+}
+
+.title {
+    font-weight: bold;
+}
+
+.controls button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.chat-content {
+    height: 80%;
+    display: flex;
+    flex-direction: column;
+}
+
+.message-area {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 10px;
+}
+
+.message {
+    margin-bottom: 10px;
+}
+
+.message.sender {
+    text-align: right;
+}
+
+.message.receiver {
+    text-align: left;
+}
+
+
+button[type="submit"] {
+    width: 60px;
+}
+
+.black-circle {
+    position: fixed;
+    bottom: -40px; /* Начальное положение за экраном */
+    right: 20px;
+    width: 40px;
+    height: 40px;
+    background-color: #000;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: bottom 0.5s ease; /* Анимация появления */
+}
+
+/* Стили для развернутого окна */
+.corner-popup.maximized {
+    width: calc(100vw - 40px); /* Вычисляем ширину окна по ширине окна браузера */
+    height: calc(100vh - 40px); /* Вычисляем высоту окна по высоте окна браузера */
+    bottom: 10px;
+    right: 10px;
+}
+
+
+
+.text-field__icon {
+    position: relative;
+}
+.text-field__icon input {
+    padding-right: 2.5rem;
+}
+.text-field__aicon {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    top: 0;
+    bottom: 0;
+    right: 0.875rem;
+    width: 1rem;
+    cursor: pointer;
+    color: #bdbdbd;
+    transition: color 0.15s ease-in-out;
+}
+.text-field__aicon:hover {
+    color: #212529;
+}
+
+
+.text-field {
+    margin-bottom: 1rem;
+}
+
+.text-field__label {
+    display: block;
+    margin-bottom: 0.25rem;
+}
+
+.text-field__input {
+    display: block;
+    width: 100%;
+    height: calc(2.25rem + 2px);
+    padding: 0.375rem 0.75rem;
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #212529;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid #bdbdbd;
+    border-radius: 0.25rem;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
+
+.text-field__input::placeholder {
+    color: #212529;
+    opacity: 0.4;
+}
+
+.text-field__input:focus {
+    color: #212529;
+    background-color: #fff;
+    border-color: #bdbdbd;
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(158, 158, 158, 0.25);
+}
+
+.text-field__input:disabled,
+.text-field__input[readonly] {
+    background-color: #f5f5f5;
+    opacity: 1;
+}
+
+.text-field__icon button {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    top: 0;
+    bottom: 0;
+    right: 0.875rem;
+    width: 1rem;
+    cursor: pointer;
+    color: #bdbdbd;
+    transition: color 0.15s ease-in-out;
+    background: none;
+    border: none;
+    padding: 0;
+}
+
+.text-field__icon button:hover {
+    color: #212529;
+}
