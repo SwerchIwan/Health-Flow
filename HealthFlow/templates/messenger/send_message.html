@@ -1,0 +1,12 @@
+{% extends "base_generic.html" %}
+
+{% block title %}Send Message{% endblock %}
+
+{% block content %}
+  <h1>Send a Message</h1>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Send</button>
+  </form>
+{% endblock %}

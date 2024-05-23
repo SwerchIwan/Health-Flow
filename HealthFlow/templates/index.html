@@ -5,27 +5,130 @@
 {% block canvas %}<canvas></canvas>{% endblock %}
 
 {% block content %}
-<div class="intro">
-        <div class="__intro">
+{% load static %}
+<div class="center">
+      <div class="content">
+        <div class="page">
+          <div class="page-content">
+              <div class="intro">
+                    <div class="__intro">
+                             <div class="title-text is-full-width">
+                            <div class="__title-text text-center">
+                                <div class="__title-text-main">
+                                    <h1>Добро пожаловать в светлое будущее с Health Flow</h1>
+                                </div>
+                                <div class="__title-text-side">
+                                    <p>И еще немного текста и вот еще чуть.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="change-color ">
+                            <div class="__change-color text-center">
+                                <button href="" class="button outline ">B</button>
+                                <button href="" class="button outline ">W</button>
+                            </div>
+                        </div>
+                    </div>
 
-                 <div class="title-text is-full-width">
-                <div class="__title-text text-center">
-                    <div class="__title-text-main">
-                        <h1>Добро пожаловать в светлое будущее с Health Flow</h1>
-                    </div>
-                    <div class="__title-text-side">
-                        <p>И еще немного текста и вот еще чуть.</p>
-                    </div>
-                </div>
             </div>
-            <div class="change-color is-full-width">
-                <div class="__change-color text-center">
-                    <button href="" class="button outline ">B</button>
-                    <button href="" class="button outline ">W</button>
-                </div>
-            </div>
+          </div>
         </div>
-     <iframe src="window" frameborder="0" width="100%" height="600"></iframe>
+
+        <div class="page">
+          <div class="page-content">
+              <div class="about_us">
+                <div class="__about_us text-center">
+                    <div class="title-text is-full-width">
+                            <div class="__title-text text-center">
+                                <div class="__title-text-main">
+                                    <h1>Немного информации о нас</h1>
+                                </div>
+                                <div class="__title-text-side">
+                                    <p>Мы молодой стартап, который специализируется на программном обеспечении для здоровья. И помощи для людей с поиском специалистов.</p>
+                                </div>
+                            </div>
+                            <div class="block-social is-full-width is-center">
+                                <div class="__block-social is-vertical-align">
+                                    <div class="elem-social">
+                                        <a href=""><img src="{% static 'css/img/facebook.png' %}" alt=""></a>
+                                    </div>
+                                    <div class="elem-social">
+                                        <a href=""><img src="{% static 'css/img/instagram.png' %}" alt=""></a>
+                                    </div>
+                                    <div class="elem-social">
+                                        <a href="https://t.me/BalmyJuice"><img src="{% static 'css/img/telegram.png' %}" alt=""></a>
+                                    </div>
+                                </div>
+                            </div>
+                    </div>
+                </div>
+              </div>
+          </div>
+        </div>
+
+        <div class="page">
+          <div class="page-content">
+              <div class="subscriptions row">
+                  <div class="standart subscription cornered-border col-3 text-center">
+                      <div class="subscription-content">
+                          <div class="subscription-title">
+                              <h1>STANDART</h1>
+                          </div>
+                          <div class="subscription-price">
+                              <p>29$</p>
+                          </div>
+                          <div class="subscription-text">
+                              <p>- Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum</p>
+                              <p>- Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum</p>
+                          </div>
+                          <div class="subscription-buy">
+                             <a class="button outline">Оформить</a>
+                          </div>
+                      </div>
+                  </div>
+                  <div class="col auto"></div>
+                  <div class="plus subscription col-3 text-center">
+                      <div class="subscription-content">
+                          <div class="subscription-title">
+                              <h1>PRO</h1>
+                          </div>
+                          <div class="subscription-price">
+                              <p>110$</p>
+                          </div>
+                          <div class="subscription-text">
+                              <p>- Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum</p>
+                              <p>- Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum</p>
+                              <p>- Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum</p>
+                          </div>
+                          <div class="subscription-buy">
+                             <a class="button outline ">Оформить</a>
+                          </div>
+                      </div>
+                  </div>
+                  <div class="col auto"></div>
+                  <div class="pro subscription cornered-border col-3 text-center">
+                      <div class="subscription-content">
+                          <div class="subscription-title">
+                              <h1>PLUS</h1>
+                          </div>
+                          <div class="subscription-price">
+                              <p>70$</p>
+                          </div>
+                          <div class="subscription-text">
+                              <p>- Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum</p>
+                              <p>- Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum</p>
+
+
+                          </div>
+                          <div class="subscription-buy">
+                             <a class="button outline ">Оформить</a>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          </div>
+        </div>
+      </div>
 </div>
 
 

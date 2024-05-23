@@ -1,0 +1,17 @@
+<!-- aut-step-two.html -->
+{% extends "base-auth.html" %}
+{% load static %}
+
+{% block title %} Авторизация {% endblock %}
+
+{% block information %} Остался один шаг до здоровья {% endblock %}
+
+{% block elem_panel %}
+<input type="password" id="inputField" name="inputField" placeholder="Введите пароль">
+{% endblock %}
+
+{% block btn_func %}<button class="button dark is-full-width" type="submit">Войти</button>{% endblock %}
+
+{% block btn_func_two %} <a class="button outline is-full-width" type="button" href="{% url 'reg_page' %}">Создать профиль</a> {% endblock %}
+
+{% block action %}action="{% url 'login' %}"{% endblock %}

@@ -1,0 +1,415 @@
+<!doctype html>
+<html lang="ru">
+<head>
+    {% load static %}
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" type="image/png" href="{% static 'css/img/icon.ico' %}" sizes="32x32"/>
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Профиль</title>
+    <link rel="stylesheet" href="https://unpkg.com/chota@latest">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/standart.css' %}">
+    <link rel="stylesheet" href="{% static 'css/profile.css' %}">
+    <link rel="stylesheet" href="{% static 'css/window.css' %}">
+    <script src="{% static 'js/script-modal.js' %}"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <main class="is-full-width is-center">
+        <div class="__main">
+            <div class="two-column row">
+                <div class="first-column-choice col-3">
+                    <div class="__first-column-choice">
+                        <div class="elem-with-logo">
+                            <a href="/">
+                                <span class="__logo">
+                                    <div class="__logo-png">
+                                        <img src="{% static 'css/img/logo.png' %}" alt="">
+                                    </div>
+                                    <div class="__logo-text">
+                                        <div class="__logo-head-text">
+                                            <p>HEALTH FLOW AI</p>
+                                        </div>
+                                        <div class="logo-min-text">
+                                            The pulse of modern medicine
+                                        </div>
+                                    </div>
+                                </span>
+                            </a>
+                        </div>
+                        <div class="elem-type-messages">
+                            <div class="button-with-icon">
+                                <button type="button" class="button text-center icon"> <p class="inner-button">
+                                  <img class="inner-button-icon" src="{% static '/css/img/customer-service.png' %}" alt="icon">
+                                    <p class="inner-button">Поддержка</p>
+                                    <span class="information">
+                                        Наша поддержка всегда готова вас выслушать
+                                    </span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="elem-type-messages">
+                            <div class="button-with-icon">
+                                <button type="button" class="button text-center icon"> <p class="inner-button">
+                                  <img class="inner-button-icon" src="{% static '/css/img/medical-assistance.png' %}" alt="icon">
+                                    <p class="inner-button">Специалисты</p>
+                                    <span class="information">
+                                        Откройте ваш чат со специалистами
+                                    </span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="additional-block">
+                            <div class="button-with-icon text-center">
+                                <button type="button" class="button lightblue text-center icon" id="settingsButton">
+                                    <div class="inner-button">
+                                        <img class="inner-button-icon white" src="{% static '/css/img/gear.png' %}" alt="icon">
+                                        <p class="inner-button">Настройки</p>
+                                        <span class="information">Кастомизируйте свой профиль как вам вздумается</span>
+                                    </div>
+                                </button>
+                            </div>
+                        </div>
+                       <div id="modal" class="modal">
+    <div class="modal-content animate__animated animate__fadeInDown">
+        <span class="close-button">&times;</span>
+        <h2>Настройки</h2>
+        <p>Кастомизируйте свой профиль как вам вздумается</p>
+<div class="settings-block">
+                                    <form id="profile-form">
+                                        <div class="__pofile-block is-vertical-align">
+                                            <div class="__pofile-block-all width two-column row">
+                                                <div class="block-avatar first-column col-2">
+                                                    <div class="__block-avatar is-rounded">
+                                                        <img src="{{ avatar }}" alt="">
+                                                        <input type="file" id="photo" name="photo" accept="image/*">
+                                                    </div>
+                                                </div>
+                                                <div class="block-nickname twice-column-profile-info">
+                                                    <div class="__block-nickname">
+                                                        <div class="first-name">
+                                                            <input type="text" id="name" name="name" value="{{ name }}">
+                                                            <input type="text" id="last_name" name="last_name" value="{{ last_name }}">
+                                                        </div>
+                                                    </div>
+                                                    <div class="number-profile">
+                                                        <input type="email" id="email" name="email" value="{{ additional }}">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="right-button is-center">
+                                                <button type="submit" class="button outline" style="color:white;">Сохранить</button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+        <h2>Заметки</h2>
+        <div class="notes-block">
+            <div id="notes-container" class="notes-container">
+                {% for note in notes %}
+                    <div class="note-item">
+                        <h3>{{ note.date }}</h3>
+                        <p>{{ note.content }}</p>
+                        <!-- Отображение данных крови -->
+                        {% if note.blood_data %}
+                            <ul>
+                                <li>Гемоглобин: {{ note.blood_data.hemoglobin }}</li>
+                                <li>Лейкоциты: {{ note.blood_data.leukocytes }}</li>
+                                <li>Лимфоциты: {{ note.blood_data.lymphocytes }}</li>
+                            </ul>
+                        {% endif %}
+                        <!-- Отображение данных давления -->
+                        {% if note.pressure_data %}
+                            <ul>
+                                <li>Систолическое: {{ note.pressure_data.systolic }}</li>
+                                <li>Диастолическое: {{ note.pressure_data.diastolic }}</li>
+                                <li>Пульс: {{ note.pressure_data.pulse_rate }}</li>
+                            </ul>
+                        {% endif %}
+                        <!-- Отображение данных ИМТ -->
+                        {% if note.bmi_data %}
+                            <ul>
+                                <li>Рост: {{ note.pressure_data.systolic }}</li>
+                                <li>Вес: {{ note.pressure_data.diastolic }}</li>
+                            </ul>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+            <!-- Форма для создания новой заметки -->
+            <form id="add-note-form">
+                {% csrf_token %}
+                <input type="date" id="note-date" name="date">
+                <textarea id="additional-notes" name="additional_notes" placeholder="Дополнительные заметки..."></textarea>
+                <input type="file" id="note-file" name="file">
+                <!-- Поля для данных крови -->
+                <input type="number" name="blood[]" placeholder="Гемоглобин">
+                <input type="number" name="blood[]" placeholder="Лейкоциты">
+                <input type="number" name="blood[]" placeholder="Лимфоциты">
+                <!-- Поля для данных давления -->
+                <input type="number" name="pressure[]" placeholder="Систолическое">
+                <input type="number" name="pressure[]" placeholder="Диастолическое">
+                <input type="number" name="pressure[]" placeholder="Пульс">
+                <!-- Поле для роста -->
+                <input type="number" name="bmi[]" placeholder="Рост (м)">
+                <input type="number" name="bmi[]" placeholder="Вес (кг)">
+                <button type="submit" class="button">Добавить заметку</button>
+            </form>
+        </div>
+    </div>
+</div>
+                    </div>
+                </div>
+                <div class="twice-column col">
+                    <div class="profile-block">
+                        <div class="__pofile-block is-vertical-align">
+                            <div class="__pofile-block-all two-column row">
+                                <div class="block-avatar first-column col-2">
+                                    <div class="__block-avatar is-rounded">
+                                        <img src="{{avatar}}" alt="">
+                                    </div>
+                                </div>
+                                <div class="block-nickname twice-column-profile-info">
+                                    <div class="__block-nickname">
+                                        <div class="first-name">
+                                            <p>{{name}}  {{last_name}}</p>
+                                        </div>
+                                    </div>
+                                    <div class="number-profile">
+                                        <p>{{additional}}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="right-button is-center"><a class="button outline" style="color:white;" href="/accounts">Стать специалистом</a></div>
+                    </div>
+                    <div class="chat-block">
+                        <div class="__chat-block" id="chat-list">
+                           {% for chat in chats %}
+                               <div class="elem-chat-block" data-chat-id="{{ chat.id }}">
+                                   <div class="button style-btn text-left">
+                                       <div class="__elem-chat-block">
+                                           <div class="__elem-chat-block-info">
+                                               <div class="block-avatar-message">
+                                                   <img src="https://avatars.mds.yandex.net/i?id=6f6125e91480fabbf7af426a0654d60c61c3f63e-12638015-images-thumbs&n=13" alt="">
+                                               </div>
+                                               <div class="block-message-name">
+                                                   <div class="__block-message-name">
+                                                       <p>{{ chat.specialist.name }}</p>
+                                                   </div>
+                                                   <div class="block-message">
+                                                       <p>{{ chat.last_message }}</p>
+                                                   </div>
+                                               </div>
+                                           </div>
+                                           <div class="block-chat-icon">
+                                               <button class="button icon-only delete">
+                                                   <img src="{% static 'css/img/trash.svg' %}">
+                                               </button>
+                                           </div>
+                                       </div>
+                                   </div>
+                               </div>
+                           {% endfor %}
+                        </div>
+                        <div class="chat-messages" id="chat-messages" style="display: none;">
+                            <div class="messages-header">
+                                <button class="button" id="back-to-chats">Назад к чатам</button>
+                                <h3 id="chat-with"></h3>
+                            </div>
+                            <div class="messages-list" id="messages-list"></div>
+                            <textarea id="message-input" placeholder="Напишите свое сообщение..."></textarea>
+                            <button class="button" id="send-message">Отправить</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="chat-circle"  id="chat-circle">
+             <img class="chat-circle-img" src="{% static 'css/img/cyborg.png' %}" alt="">
+            </div>
+            <div class="chat-support" id="chat-support">
+                <div class="header">
+                    <h3>Health FlowAI</h3>
+                    <div class="elem-control">
+                        <div class="elem-control">
+                            <span class="resize-btn" onclick="toggleFullscreen()">⛶</span>
+                        </div>
+                        <div class="elem-control">
+                            <span class="close-btn" onclick="closeChat()">×</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="messages" id="chat-messagesAI">
+                    <div class="message support-message">Привет я нейронная сеть Health FlowAI</div>
+                </div>
+                <textarea id="message-inputAI" placeholder="Напишите свой запрос....."></textarea>
+                <button class="button " onclick="sendMessage()">Отправить</button>
+            </div>
+        </div>
+    </main>
+    <script>
+$(document).ready(function() {
+    // Обработчик клика на чат
+    $('.elem-chat-block').on('click', function() {
+        const chatId = $(this).data('chat-id');
+        loadChat(chatId);
+        $('#chat-messages').data('chat-id', chatId); // Store chat id
+    });
+
+    // Функция загрузки чата
+    function loadChat(chatId) {
+        $.ajax({
+            url: `/profile/chat_detail/${chatId}/`,
+            method: 'GET',
+            success: function(data) {
+                $('#chat-list').hide();
+                $('#chat-messages').show();
+                $('#messages-list').html('');
+                $('#chat-with').text(data.specialist);
+                data.messages.forEach(function(message) {
+                    $('#messages-list').append(`
+                        <div class="message ${message.sender === data.user ? 'user-message' : 'specialist-message'}">
+                            <p>${message.content}</p>
+                            <span>${message.timestamp}</span>
+                        </div>
+                    `);
+                });
+            },
+            error: function(error) {
+                console.error('Ошибка при загрузке чата', error);
+            }
+        });
+    }
+
+    // Обработчик клика на кнопку "Назад к чатам"
+    $('#back-to-chats').on('click', function() {
+        $('#chat-messages').hide();
+        $('#chat-list').show();
+    });
+
+    // Обработчик отправки сообщения
+    $('#send-message').on('click', function() {
+        const chatId = $('#chat-messages').data('chat-id');
+        const messageContent = $('#message-input').val();
+        if (messageContent.trim() !== '') {
+            $.ajax({
+                url: `/profile/send_message/`,
+                method: 'POST',
+                data: {
+                    chat_id: chatId,
+                    message: messageContent,
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
+                },
+                success: function(data) {
+                    $('#message-input').val('');
+                    $('#messages-list').append(`
+                        <div class="message user-message">
+                            <p>${data.message}</p>
+                            <span>${data.timestamp}</span>
+                        </div>
+                    `);
+                },
+                error: function(error) {
+                    console.error('Ошибка при отправке сообщения', error);
+                }
+            });
+        }
+    });
+});
+        $(document).ready(function() {
+    // Открытие и закрытие модального окна
+    var modal = document.getElementById('modal');
+    var btn = document.getElementById('settingsButton');
+    var span = document.getElementsByClassName('close-button')[0];
+
+    btn.onclick = function() {
+        modal.style.display = 'block';
+    }
+
+    span.onclick = function() {
+        modal.style.display = 'none';
+    }
+
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            modal.style.display = 'none';
+        }
+    }
+
+    // Обработка формы редактирования профиля
+    $(document).ready(function() {
+    $('#profile-form').submit(function(e) {
+        e.preventDefault(); // Предотвращаем отправку формы по умолчанию
+
+        // Отправляем данные формы на сервер
+        $.ajax({
+            type: 'POST',
+            url: '/profile/update_profile/',
+            data: $(this).serialize(), // Сериализуем данные формы
+            success: function(response) {
+                // При успешном сохранении обновляем содержимое страницы
+                // Здесь можно использовать полученный ответ для обновления данных на странице
+                // Например, обновление аватарки или других полей профиля
+                updatePage(response);
+            },
+            error: function(xhr, status, error) {
+                console.error('Ошибка при обновлении профиля', error);
+            }
+        });
+    });
+});
+
+function updatePage(response) {
+    // В этой функции вы можете обновить содержимое страницы в соответствии с полученным ответом от сервера
+    // Например, обновить аватарку, имя пользователя и т.д.
+    // Пример:
+    $('#avatar').attr('src', response.avatar_url);
+    $('#name').val(response.name);
+    $('#last_name').val(response.last_name);
+    // Обновите остальные поля по аналогии
+}
+
+$(document).ready(function() {
+    // Обработчик отправки формы добавления заметки
+    $('#add-note-form').submit(function(e) {
+        e.preventDefault(); // Предотвращаем отправку формы по умолчанию
+
+        // Получаем CSRF-токен из скрытого поля формы
+        var csrfToken = $('input[name="csrfmiddlewaretoken"]').val();
+
+        // Отправляем данные формы на сервер
+        $.ajax({
+            type: 'POST',
+            url: '/profile/add_note/',  // URL для добавления заметки
+            data: $(this).serialize() + '&csrfmiddlewaretoken=' + csrfToken, // Добавляем CSRF-токен к данным формы
+            success: function(response) {
+                // При успешном добавлении заметки обновляем страницу или ее часть
+                // Например, добавляем новую заметку к списку на странице
+                $('#notes-container').append('<div class="note">' + '</div>');
+                // Очищаем поля формы
+                $('#note-date').val('');
+                $('#additional-notes').val('');
+                $('#note-file').val('');
+                $('input[name="blood[]"]').val('');
+                $('input[name="pressure[]"]').val('');
+                $('input[name="bmi"]').val('');
+            },
+            error: function(error) {
+                alert('Ошибка при добавлении заметки');
+            }
+        });
+    });
+});
+
+
+});
+
+
+
+    </script>
+<script src="{% static 'js/window.js' %}"></script>
+</body>
+</html>

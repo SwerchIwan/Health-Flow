@@ -39,11 +39,16 @@ class GradientAnimation {
     setTheme(theme) {
     if (theme === "light") {
         this.compositeMode = "lighter";
-        document.body.style.backgroundColor = "#ffffff"; // Светлая тема
+
+        document.body.style.cssText += `
+            mix-blend-mode: difference;
+        `;
     } else if (theme === "dark") {
-        this.compositeMode = "color-burn";
-        document.body.style.backgroundColor = "#000000"; // Темная тема
-        this.cnv.style.opacity = 0.5; // Уменьшаем прозрачность канваса до половины
+        this.compositeMode = "lighter";
+
+        document.body.style.cssText -= `
+            mix-blend-mode: difference;
+        `;
     }
     this.drawAnimation(); // Перерисовываем анимацию после изменения темы
 }

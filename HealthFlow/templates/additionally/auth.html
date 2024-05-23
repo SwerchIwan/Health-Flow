@@ -1,10 +1,15 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% block title %} Регистрация {% endblock %}
 
-</body>
-</html>
+{% block information %} Остался один шаг до здоровья {% endblock %}
+
+{% block elem_panel %}
+<nav class="tabs is-full">
+    <a href="#" id="phone" onclick="changePlaceholder('phone')">Телефон</a>
+    <a href="#" id="email" onclick="changePlaceholder('email')">Почта</a>
+</nav>
+<input type="text" id="inputField" placeholder="Введите номер телефона">
+{% endblock %}
+
+{% block btn_func %} Войти {% endblock %}
+
+{% block btn_func_two %} Создать профиль {% endblock %}

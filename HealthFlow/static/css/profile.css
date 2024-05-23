@@ -1,0 +1,348 @@
+@font-face {
+    font-family: 'YandexSansDisplay-Bold';
+    src: url('font/YandexSansDisplay-Bold.ttf');
+}
+
+@font-face {
+    font-family: 'YandexSansText-Bold';
+    src: url('font/YandexSansText-Bold.ttf');
+}
+
+@font-face {
+    font-family: 'norwester';
+    src: url('font/norwester.otf');
+}
+
+@font-face {
+    font-family: 'Montserrat-Medium';
+    src: url('font/Montserrat-Medium.ttf');
+}
+
+.__main{
+    max-width: 1920px;
+    max-height: 1080px;
+    width: 1920px;
+    height: 1080px;
+}
+
+
+.__pofile-block{
+    max-height: 200px;
+    height: 200px;
+    box-sizing: content;
+}
+
+
+.__block-avatar{
+    width: 80px;
+    height: 80px;
+    min-width: 50px;
+    min-height: 50px;
+}
+
+.__block-avatar img{
+    border-radius: 100%;
+    width: 80px;
+    height: 80px;
+    min-width: 50px;
+    min-height: 50px;
+}
+
+.__pofile-block-all{
+    display: flex;
+    box-sizing: content-box;
+    margin: 0px;
+    width: 600px;
+    align-items: center;
+
+}
+
+.block-nickname{
+
+}
+
+.first-column-choice{
+     height: 100vh;
+}
+
+.__first-column-choice {
+    height: 100%;
+    position:relative;
+    padding-bottom:50px;
+    background-color: white;
+}
+
+.elem-type-messages {
+    height: 150px;
+
+    margin-top: 30px;
+}
+
+.additional-block {
+    position: absolute;
+    bottom: 50px;
+    width: 100%;
+    height: 150px;
+}
+
+.twice-column{
+    margin-right: 50px;
+    border-radius: 30px;
+    margin-top: 20px;
+    background-color: white;
+    -webkit-box-shadow: 0px 0px 24px 4px rgba(34, 60, 80, 0.2);
+    -moz-box-shadow: 0px 0px 24px 4px rgba(34, 60, 80, 0.2);
+    box-shadow: 0px 0px 24px 4px rgba(34, 60, 80, 0.2);
+}
+
+body{
+    background-color: #F2F2F2;
+    font-family: 'YandexSansDisplay-Bold';
+}
+
+.elem-with-logo{
+     mix-blend-mode: difference;
+}
+
+.chat-block{
+    background-color: #F2F2F2;
+    height: 80vh;
+    padding: 50px;
+    margin: 20px;
+    border-radius: 30px;
+    overflow: auto;
+}
+
+.elem-chat-block{
+    margin: 0 auto;
+    width: 95%;
+    height: 100px;
+    -webkit-box-shadow: 0px 0px 24px 4px rgba(34, 60, 80, 0.2);
+    -moz-box-shadow: 0px 0px 24px 4px rgba(34, 60, 80, 0.2);
+    box-shadow: 0px 0px 24px 4px rgba(34, 60, 80, 0.2);
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 30px;
+
+}
+
+.__elem-chat-block{
+    display: flex;
+    align-items: center;
+    height: 100%;
+    justify-content: space-between;
+
+}
+
+.__elem-chat-block-info{
+    display: flex;
+    height: 100%;
+    align-items: center;
+}
+
+.block-avatar-message img{
+    width: 65px;
+    height: 65px;
+    border-radius: 30px;
+}
+
+.block-message-name{
+    margin-left: 30px;
+}
+
+.block-message p{
+    font-size: 14px;
+}
+
+.profile-block{
+    display: flex;
+    justify-content: space-between;
+    padding: 0px 50px;
+}
+
+.right-button{
+    mix-blend-mode: difference;
+}
+
+.__block-nickname{
+    display: flex;
+}
+
+.number-profile{
+    font-size: 14px;
+    color: #ACACAC;
+}
+
+.button-with-icon{
+    height: 100%;
+    width: 100%;
+    display; flex;
+    align-items: center;
+}
+
+.button-with-icon button{
+    mix-blend-mode: difference;
+    width: 100%;
+    height: 100%;
+}
+
+.inner-button{
+    padding-top: 10px;
+    font-size: 25px;
+    font-family: 'YandexSansText-Bold';
+
+}
+
+.inner-button-icon{
+    width: 35px;
+    height: 35px;
+}
+
+.button-with-icon .lightblue{
+    background-color: lightblue;
+    mix-blend-mode: normal;
+    color: white;
+}
+
+:root {
+  --bg-color: #fff;
+  --bg-secondary-color: #f3f3f6;
+  --color-primary: #fff;
+  --color-lightGrey: #d2d6dd;
+  --color-grey: #747681;
+  --color-darkGrey: #3f4144;
+  --color-error: #d43939;
+  --color-success: #28bd14;
+  --grid-maxWidth: 120rem;
+  --grid-gutter: 2rem;
+  --font-size: 2rem;
+  --font-color: #333333;
+  --font-color-white: #fff;
+  --font-family: 'Yandex-bold';
+  --maxWidth: 1600px;
+}
+
+
+.style-btn{
+    width: 100%;
+    height: 100%;
+    background-color: white;
+}
+
+.button-with-icon .button {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+}
+
+.inner-button-icon {
+    color: white;
+    margin: 0 auto;
+}
+
+.information {
+    margin-top: 10px; /* Добавьте отступ ниже блока с иконкой и текстом */
+}
+
+.modal {
+    display: none; /* Скрыть модальное окно по умолчанию */
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgb(0,0,0);
+    background-color: rgba(0,0,0,0.4); /* Черный с прозрачностью */
+
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 15% auto; /* 15% сверху и по центру */
+    padding: 50px;
+    border: 1px solid #888;
+    width: 80%; /* Ширина модального окна */
+    border-radius: 30px;
+
+    align-items: center;
+    max-width: 1200px;
+}
+
+.close-button {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close-button:hover,
+.close-button:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.information{
+    font-size: 18px;
+}
+
+.settings-block{
+    width: 100%;
+    display: flex;
+    justify-content: space between;
+
+}
+
+.chat-circle-img{
+}
+
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 15% auto;
+    padding: 50px;
+    border: 1px solid #888;
+    width: 80%;
+    border-radius: 30px;
+    align-items: center;
+    max-width: 1200px;
+    overflow: auto; /* Добавлено для прокрутки */
+    max-height: 80vh; /* Ограничение высоты */
+}
+
+.notes-block {
+    margin-top: 20px;
+}
+
+#notes-container {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    max-height: 200px;
+    border: 1px solid #ccc;
+    padding: 10px;
+    border-radius: 10px;
+    background-color: #f9f9f9;
+}
+
+#notes-container .note {
+    margin-right: 10px;
+    padding: 10px;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    min-width: 200px;
+}
+
+#new-note {
+    width: calc(100% - 22px); /* Полная ширина с учетом padding */
+    padding: 10px;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+    margin-top: 10px;
+}
+
+#add-note-button {
+    margin-top: 10px;
+}

@@ -1,0 +1,23 @@
+{% extends "base_generic.html" %}
+
+{% block title %}Messages{% endblock %}
+
+{% block content %}
+  <h1>Messages</h1>
+  
+  <h2>Received Messages</h2>
+  <ul>
+    {% for message in messages_received %}
+      <li>{{ message.timestamp }} - {{ message.sender.username }}: {{ message.content }}</li>
+    {% endfor %}
+  </ul>
+  
+  <h2>Sent Messages</h2>
+  <ul>
+    {% for message in messages_sent %}
+      <li>{{ message.timestamp }} - To {{ message.receiver.username }}: {{ message.content }}</li>
+    {% endfor %}
+  </ul>
+
+  <a href="{% url 'send_message' %}">Send a new message</a>
+{% endblock %}

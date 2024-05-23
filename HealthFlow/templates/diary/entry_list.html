@@ -1,0 +1,24 @@
+<!-- diary/templates/diary/entry_list.html -->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Health Diary</title>
+</head>
+<body>
+    <h1>Health Diary</h1>
+    <a href="{% url 'entry_create' %}">Add new entry</a>
+    <ul>
+        {% for entry in entries %}
+        <li>
+            <h2>{{ entry.title }}</h2>
+            <p>{{ entry.content }}</p>
+            {% if entry.file %}
+            <p><a href="{{ entry.file.url }}">Download attached file</a></p>
+            {% endif %}
+            <p><em>{{ entry.created_at }}</em></p>
+        </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

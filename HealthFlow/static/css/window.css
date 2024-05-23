@@ -1,177 +1,131 @@
-.corner-popup {
+body {
+    background-color: #F2F2F2;
+    margin: 0;
+    padding: 0;
+}
+
+@font-face {
+    font-family: 'YandexSansDisplay-Bold';
+    src: url('font/YandexSansDisplay-Bold.ttf');
+}
+
+@font-face {
+    font-family: 'YandexSansDisplay-Bold';
+    src: url('font/YandexSansDisplay-Bold.ttf');
+}
+
+@font-face {
+    font-family: 'norwester';
+    src: url('font/norwester.otf');
+}
+
+@font-face {
+    font-family: 'Montserrat-Medium';
+    src: url('font/Montserrat-Medium.ttf');
+}
+
+.chat-circle {
+
+    display: block;
     position: fixed;
     bottom: 20px;
     right: 20px;
-    background-color: #ffffff;
-    border: 1px solid #ccc;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    border-radius: 5px;
-    width: 300px; /* Изначальная ширина */
-    height: 200px; /* Изначальная высота */
-    transition: all 0.3s ease; /* Добавляем плавную анимацию */
-    overflow: hidden; /* Скрытие содержимого, если оно не помещается в маленьком окне */
+    width: 50px;
+    height: 50px;
+    background-color: (0,0,0,1);
+    color: #fff;
+    font-size: 24px;
+    text-align: center;
+    line-height: 50px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: transform 0.3s;
+    z-index: 1; /* Ensure the chat-circle is above chat-support */
+    margin-top: -100px;
+    border: 3px solid black;
 }
 
-.title-bar {
+.chat-support {
+    font-family: 'YandexSansDisplay-Regular';
+    position: fixed; /* изменено на fixed для закрепления */
+    bottom: 20px;
+    right: 20px;
+    max-height: 80vh; /* Limit the height so it scrolls */
+    width: 300px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    animation: slideIn 0.3s;
+    display: flex;
+    flex-direction: column;
+    z-index: 1; /* Ensure the chat-support is above background */
+    overflow: auto; /* Enable scrolling capability */
+    color: var(--font-color);
+    background-color: #F2F2F2;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(150%);
+    }
+    to {
+        transform: translateX(0);
+    }
+}
+
+.header {
+    font-family: 'Montserrat-Medium';
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: #f0f0f0;
-    padding: 5px 10px;
+    padding: 10px;
     border-bottom: 1px solid #ccc;
-    border-top-left-radius: 5px;
-    border-top-right-radius: 5px;
 }
 
-.title {
-    font-weight: bold;
-}
-
-.controls button {
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 16px;
-}
-
-.chat-content {
-    height: 80%;
-    display: flex;
-    flex-direction: column;
-}
-
-.message-area {
+.messages-container {
     flex-grow: 1;
-    overflow-y: auto;
+    overflow-y: scroll;
     padding: 10px;
 }
 
 .message {
-    margin-bottom: 10px;
+    width: 100%; /* Сделаем сообщения растягивающимися во всю ширину */
+    padding: 10px;
+    border-radius: 10px;
+    word-wrap: break-word; /* Переносим текст на новую строку при необходимости */
 }
 
-.message.sender {
-    text-align: right;
+.support-message {
+    background-color: #f1f0f0;
+    align-self: flex-start;
+    margin-right: auto;
 }
 
-.message.receiver {
-    text-align: left;
+.user-message {
+    background-color: #DCF8C6; /* Цвет фона сообщений пользователя */
+    align-self: flex-end; /* Выравнивание сообщений пользователя по правому краю */
+    margin-left: auto;
 }
 
 
-button[type="submit"] {
-    width: 60px;
+.input-container {
+    display: flex;
+    align-items: center;
+    padding: 10px;
 }
 
-.black-circle {
-    position: fixed;
-    bottom: -40px; /* Начальное положение за экраном */
-    right: 20px;
-    width: 40px;
+textarea {
+    flex: 1;
     height: 40px;
-    background-color: #000;
-    border-radius: 50%;
-    cursor: pointer;
-    transition: bottom 0.5s ease; /* Анимация появления */
-}
-
-/* Стили для развернутого окна */
-.corner-popup.maximized {
-    width: calc(100vw - 40px); /* Вычисляем ширину окна по ширине окна браузера */
-    height: calc(100vh - 40px); /* Вычисляем высоту окна по высоте окна браузера */
-    bottom: 10px;
-    right: 10px;
-}
-
-
-
-.text-field__icon {
-    position: relative;
-}
-.text-field__icon input {
-    padding-right: 2.5rem;
-}
-.text-field__aicon {
-    position: absolute;
-    display: flex;
-    align-items: center;
-    top: 0;
-    bottom: 0;
-    right: 0.875rem;
-    width: 1rem;
-    cursor: pointer;
-    color: #bdbdbd;
-    transition: color 0.15s ease-in-out;
-}
-.text-field__aicon:hover {
-    color: #212529;
-}
-
-
-.text-field {
-    margin-bottom: 1rem;
-}
-
-.text-field__label {
-    display: block;
-    margin-bottom: 0.25rem;
-}
-
-.text-field__input {
-    display: block;
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
     width: 100%;
-    height: calc(2.25rem + 2px);
-    padding: 0.375rem 0.75rem;
-    font-family: inherit;
-    font-size: 1rem;
-    font-weight: 400;
-    line-height: 1.5;
-    color: #212529;
-    background-color: #fff;
-    background-clip: padding-box;
-    border: 1px solid #bdbdbd;
-    border-radius: 0.25rem;
-    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
+    resize: none;
 }
 
-.text-field__input::placeholder {
-    color: #212529;
-    opacity: 0.4;
-}
-
-.text-field__input:focus {
-    color: #212529;
-    background-color: #fff;
-    border-color: #bdbdbd;
-    outline: 0;
-    box-shadow: 0 0 0 0.2rem rgba(158, 158, 158, 0.25);
-}
-
-.text-field__input:disabled,
-.text-field__input[readonly] {
-    background-color: #f5f5f5;
-    opacity: 1;
-}
-
-.text-field__icon button {
-    position: absolute;
+.elem-control {
     display: flex;
-    align-items: center;
-    top: 0;
-    bottom: 0;
-    right: 0.875rem;
-    width: 1rem;
-    cursor: pointer;
-    color: #bdbdbd;
-    transition: color 0.15s ease-in-out;
-    background: none;
-    border: none;
-    padding: 0;
-}
-
-.text-field__icon button:hover {
-    color: #212529;
+    width: 50px;
+    height: 50px;
+    justify-content: space-between;
 }

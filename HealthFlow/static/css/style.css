@@ -35,16 +35,10 @@
   --maxWidth: 1600px;
 }
 
-body {
-  margin: 0%;
-  font-family: 'YandexSansDisplay-Bold';
-}
-
-
 canvas {
   display: block;
   width: 100%;
-  height: 1080px;
+  height: 100%;
   background: hsla(214, 63%, 22%, 1);;
 }
 
@@ -54,15 +48,16 @@ canvas {
 }
 
 .intro{
-    color: var(--font-color-white);
-    height: 750px;
+
 }
 
 .__intro{
     position: relative;
     margin: 0 auto;
-    max-width: var(--maxWidth);
-    height: 100%;
+    max-width: 100%;
+    mix-blend-mode: difference;
+
+
 }
 
 .menu{
@@ -81,22 +76,28 @@ canvas {
     margin-left: 0px;
 }
 
-header{
-    max-width: var(--maxWidth);
-    margin: 0 auto;
-
+header {
+    position: fixed;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 1600px;
+    z-index: 1000; /* Убедитесь, что шапка выше остального контента */
+    mix-blend-mode: difference;
 }
 
-.__header{
+.__header {
+    width: 100%;
     margin: 0 auto;
-    padding-top: 50px;
+    padding: 20px 0; /* Измените или удалите, если не нужно */
     display: flex;
     align-items: center;
     justify-content: space-between;
-    color: var(--color-primary);
     font-size: var(--font-size);
-    mix-blend-mode: difference;
 }
+
+
 
 .__logo-png{
     max-width: 100px;
@@ -119,11 +120,9 @@ header{
 }
 
 .title-text{
-    display:flex;
     align-items:center;
     justify-content:center;
-    max-height: 600px;
-    min-height: 450px;
+
     mix-blend-mode: difference;
 }
 
@@ -136,24 +135,164 @@ header{
     font-family:Montserrat-Medium;
 }
 
-.change-color{
-    mix-blend-mode: difference;
-}
-
 .__change-color button{
+    margin-top: 50px;
     width: 100px;
     padding: 0px;
-    color:  var(--color-primary);
+
 }
 
 .__change-color{
-    position: absolute;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
+    height: 80px;
+
 }
 
 body {
     transition: background-color 2s ease;
+    font-family: 'YandexSansDisplay-Bold';
+    width: 100%;
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+
 }
 
+      .center {
+        width: 100%;
+        height: 100%;
+      }
+      .content {
+        width: 100vh;
+        height: 100vw;
+        position: relative;
+        transform-origin: left top;
+        transform: rotateZ(-90deg) translateX(-100%);
+        overflow: auto;
+      }
+      .page {
+
+        width: 100vh;
+        height: 100vw;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+
+      }
+      .page-content {
+        transform: rotate(90deg);
+
+      }
+      .content::-webkit-scrollbar {
+        display: none;
+      }
+
+.about_us{
+        width: 100%
+        height: 800px;
+      }
+
+.elem-social{
+    max-width: 80px;
+    max-height: 80px;
+}
+
+.block-social{
+    margin-top: 50px;
+}
+
+.elem-social{
+    margin-left: 50px;
+}
+
+.elem-social: first-child{
+    margin-left: 0px;
+}
+
+.subscriptions{
+    width: 1700px;
+}
+
+.subscription{
+  padding: 30px;
+  border-radius: 15px;
+
+
+  backdrop-filter: blur(10px); /* Степень размытия */
+}
+
+.subscription-content {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  height: 100%
+}
+
+.subscription-text{
+    padding-top: 20px;
+    margin-top: 20px;
+    border-top: 1px solid rgba(0, 0, 0, 0.8);
+    margin-bottom: 20px;
+}
+
+.subscription-buy{
+    margin-top: auto;
+
+}
+
+.standart{
+
+}
+
+.plus{
+    background-image: repeating-linear-gradient(29deg, #333333, #333333 30px, transparent 30px, transparent 39px, #333333 39px), repeating-linear-gradient(119deg, #333333, #333333 30px, transparent 30px, transparent 39px, #333333 39px), repeating-linear-gradient(209deg, #333333, #333333 30px, transparent 30px, transparent 39px, #333333 39px), repeating-linear-gradient(299deg, #333333, #333333 30px, transparent 30px, transparent 39px, #333333 39px);
+    background-size: 3px calc(100% + 44.59px), calc(100% + 44.59px) 3px, 3px calc(100% + 44.59px) , calc(100% + 44.59px) 3px;
+    background-position: 0 0, 0 0, 100% 0, 0 100%;
+    background-repeat: no-repeat;
+    animation: borderAnimation 0.9s infinite linear;
+}
+
+@keyframes borderAnimation {
+    from { background-position: 0 0, -44.59px 0, 100% -44.59px, 0 100%; }
+    to { background-position: 0 -44.59px, 0 0, 100% 0, -44.59px 100%; }
+}
+
+.pro{
+
+}
+
+cornered{ // Cornered
+    background-image:
+        linear-gradient(0deg, var(--clr-border), var(--clr-border) 25%, transparent 25%, transparent 75%, var(--clr-border) 75%), // left
+        linear-gradient(90deg, var(--clr-border), var(--clr-border) 25%, transparent 25%, transparent 75%, var(--clr-border) 75%), // top
+        linear-gradient(180deg, var(--clr-border), var(--clr-border) 25%, transparent 25%, transparent 75%, var(--clr-border) 75%), // right
+        linear-gradient(270deg, var(--clr-border), var(--clr-border) 25%, transparent 25%, transparent 75%, var(--clr-border) 75%) // bottom
+    ;
+
+    background-size: 3px;
+}
+.cornered-border::before,
+.cornered-border::after {
+  content: "";
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border: 2px solid black;
+}
+
+.cornered-border::before {
+  bottom: -2px;
+  left: -2px;
+  border-width: 0 0 2px 2px;
+}
+
+.cornered-border::after {
+  bottom: -2px;
+  right: -2px;
+  border-width: 0 2px 2px 0;
+}.
+
+.subscription-title{
+    font-family: "norvester";
+}

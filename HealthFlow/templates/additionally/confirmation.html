@@ -1,0 +1,19 @@
+{% extends "base-auth.html" %}
+{% load static %}
+
+{% csrf_token %}
+
+{% block title %} Авторизация {% endblock %}
+
+{% block information %} Остался один шаг до здоровья {% endblock %}
+
+{% block elem_panel %}
+<div class="conf-mes">
+   <p id="confirmationMessage">{{ confirmation_message }}</p>
+</div>
+<input type="password" id="inputField" placeholder="Введите код подтверждения">
+{% endblock %}
+
+{% block btn_func %} Создать {% endblock %}
+
+{% block btn_func_two %} <a class="button outline is-full-width" type="button" href="{% url 'auth_page' %}">Войти в профиль</a> {% endblock %}
