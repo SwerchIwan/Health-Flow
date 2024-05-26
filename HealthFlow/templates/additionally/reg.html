@@ -13,8 +13,8 @@
 {% csrf_token %}
 <input type="hidden" name="choice" id="choice" value='phone'> <!-- Поле для хранения выбора пользователя -->
 <input type="text" name="inputField" placeholder="Введите номер телефона">
-<input type="text" name="password" placeholder="Введите пароль">
-<input type="text" placeholder="Повторите пароль">
+<input type="password" name="password" placeholder="Введите пароль">
+<input type="password" placeholder="Повторите пароль">
 {% endblock %}
 
 {% block btn_func %}<button class="button dark is-full-width" type="submit">Далее</button>{% endblock %}

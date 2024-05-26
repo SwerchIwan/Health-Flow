@@ -10,7 +10,7 @@ from users.views import auth_page, auth_page_two, reg_page, login_user, logout_u
 from django.views.generic import TemplateView
 # from messenger.views import *
 from diary.views import *
-from profile_user.views import profile_page, chat_detail, send_message, process_message, update_profile, add_note
+from profile_user.views import profile_page, chat_detail, send_message, process_message, update_profile, add_note, search_specialist, start_chat, get_note_details
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -35,7 +35,10 @@ urlpatterns = [
     path('profile/send_message/', send_message, name='send_message'),
     path('process-message/', process_message, name='process-message'),
     path('profile/update_profile/', csrf_exempt(update_profile), name='update-profile'),
-    path('profile/add_note/', add_note, name='add-note')
+    path('profile/add_note/', add_note, name='add-note'),
+    path('search_specialist/', search_specialist, name='search_specialist'),
+    path('profile/start_chat/', start_chat, name='start_chat'),
+    path('profile/get_note_details/<int:note_id>/', get_note_details, name='get_note_details'),
 ]
 
 # Добавьте это в конец файла

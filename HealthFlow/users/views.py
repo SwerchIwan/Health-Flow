@@ -6,7 +6,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.core.mail import send_mail
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render, redirect
 from django.template.loader import render_to_string
 from django.urls import reverse
@@ -68,7 +68,9 @@ def login_user(request):
         return redirect('auth_page')
 
 def logout_user(request):
-    logout(request)
+    if request.method == 'POST':
+        logout(request)
+        return JsonResponse({'success': True})
     return redirect('auth_page')
 
 def reg_page(request):
