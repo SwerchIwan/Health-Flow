@@ -23,19 +23,7 @@
 {% block btn_func_two %} <a class="button outline is-full-width" type="button" href="{% url 'reg_page' %}">Создать профиль</a> {% endblock %}
 
 {% block additionally %}
-<div class="block-additionally">
-    <div class="title-additionally text-center">
-        <p class="info-login">Войти с помощью:</p>
-    </div>
-    <div class="__block-additionally">
-        <div class="__block-additionally-elem ">
-            <div class="button outline">
-                <img src="{% static 'css/img/google.png' %}" alt="">
-                <p>Google</p>
-            </div>
-        </div>
-    </div>
-</div>
+
 {% endblock %}
 
 {% if error_message %}

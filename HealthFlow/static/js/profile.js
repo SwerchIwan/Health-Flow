@@ -1,4 +1,42 @@
 $(document).ready(function() {
+    $('.stars input').on('change', function() {
+        const rating = $(this).val();
+        const specialistContact = $('#chat-contact').text();
+
+        if (specialistContact) {
+            $.ajax({
+                url: '/profile/set_rating/',
+                method: 'POST',
+                data: {
+                    'specialist_contact': specialistContact,
+                    'rating': rating,
+                    'csrfmiddlewaretoken': '{{ csrf_token }}'
+                },
+                success: function(data) {
+                    if (data.status === 'success') {
+                        $('#average-rating').text('Рейтинг специалиста: ' + data.new_average_rating);
+
+                    // Показать элемент .result и установить таймер для его скрытия
+                    const resultElement = $('.stars .result');
+                    resultElement.show().css('opacity', '1');
+
+                    setTimeout(function() {
+                        resultElement.fadeOut(); // Используем jQuery fadeOut для скрытия
+                    }, 1000); // 3000 миллисекунд = 3 секунды
+                    } else {
+                        console.error('Ошибка при сохранении рейтинга:', data.message);
+                    }
+                },
+                error: function(error) {
+                    console.error('Ошибка при сохранении рейтинга', error);
+                }
+            });
+        } else {
+            console.error('Specialist ID is not defined.');
+        }
+    });
+
+
     // Делегирование событий для клика на заметку
     $('#notes-container').on('click', '.note-item', function() {
         const noteId = $(this).data('note-id');
@@ -11,7 +49,7 @@ $(document).ready(function() {
                 // Скрываем все заметки и отображаем выбранную заметку во весь блок
                 $('#notes-container').html(
                     `<div class="full-note-item">
-                        <button id="close-full-note">Закрыть</button>
+                        <input id="close-full-note" type="button" value="Закрыть" />
                         <h3>${response.date}</h3>
                         <p>${response.additional_notes}</p>
                         ${response.blood_data ? `
@@ -49,40 +87,41 @@ $(document).ready(function() {
     $('#add-note-form').submit(function(e) {
         e.preventDefault(); // Предотвращаем отправку формы по умолчанию
 
-        // Получаем CSRF-токен из скрытого поля формы
-        var csrfToken = $('input[name="csrfmiddlewaretoken"]').val();
+        var formData = new FormData(this); // Используем FormData для отправки файлов
+        formData.append('csrfmiddlewaretoken', $('input[name="csrfmiddlewaretoken"]').val());
 
         // Отправляем данные формы на сервер
         $.ajax({
             type: 'POST',
-            url: '/profile/add_note/',  // URL для добавления заметки
-            data: $(this).serialize() + '&csrfmiddlewaretoken=' + csrfToken, // Добавляем CSRF-токен к данным формы
+            url: '/profile/add_note/',
+            data: formData,
+            processData: false,
+            contentType: false,
             success: function(response) {
                 console.log(response); // Логируем ответ сервера для отладки
-                if (response.note && response.note.id) {
+                if (response.status === 'success' && response.note_id) {
                     // При успешном добавлении заметки обновляем страницу или ее часть
-                    // Например, добавляем новую заметку к списку на странице
                     $('#notes-container').append(
-                        `<div class="note-item" data-note-id="${response.note.id}">
-                            <h3>${response.note.date}</h3>
+                        `<div class="note-item" data-note-id="${response.note_id}">
+                            <h3>${response.date}</h3>
                             <div class="note-content" style="display: none;">
-                                <p>${response.note.additional_notes}</p>
-                                ${response.note.blood_data ? `
+                                <p>${response.additional_notes}</p>
+                                ${response.blood_data ? `
                                     <ul>
-                                        <li>Гемоглобин: ${response.note.blood_data.hemoglobin}</li>
-                                        <li>Лейкоциты: ${response.note.blood_data.leukocytes}</li>
-                                        <li>Лимфоциты: ${response.note.blood_data.lymphocytes}</li>
+                                        <li>Гемоглобин: ${response.blood_data.hemoglobin}</li>
+                                        <li>Лейкоциты: ${response.blood_data.leukocytes}</li>
+                                        <li>Лимфоциты: ${response.blood_data.lymphocytes}</li>
                                     </ul>` : ''}
-                                ${response.note.pressure_data ? `
+                                ${response.pressure_data ? `
                                     <ul>
-                                        <li>Систолическое: ${response.note.pressure_data.systolic}</li>
-                                        <li>Диастолическое: ${response.note.pressure_data.diastolic}</li>
-                                        <li>Пульс: ${response.note.pressure_data.pulse_rate}</li>
+                                        <li>Систолическое: ${response.pressure_data.systolic}</li>
+                                        <li>Диастолическое: ${response.pressure_data.diastolic}</li>
+                                        <li>Пульс: ${response.pressure_data.pulse_rate}</li>
                                     </ul>` : ''}
-                                ${response.note.bmi_data ? `
+                                ${response.bmi_data ? `
                                     <ul>
-                                        <li>Рост: ${response.note.bmi_data.height}</li>
-                                        <li>Вес: ${response.note.bmi_data.weight}</li>
+                                        <li>Рост: ${response.bmi_data.height}</li>
+                                        <li>Вес: ${response.bmi_data.weight}</li>
                                     </ul>` : ''}
                             </div>
                         </div>`
@@ -100,6 +139,7 @@ $(document).ready(function() {
                 }
             },
             error: function(error) {
+                console.error('Ошибка при отправке данных на сервер', error);
                 alert('Ошибка при добавлении заметки');
             }
         });
@@ -138,34 +178,39 @@ $(document).ready(function() {
 
     // Обработчик клика на результат поиска специалиста
     $('#search-results').on('click', '.search-result', function() {
-        const specialistId = $(this).data('specialist-id');
-        $.ajax({
-            url: `start_chat/`,
-            method: 'POST',
-            data: {
-                specialist_id: specialistId,
-                csrfmiddlewaretoken: '{{ csrf_token }}'
-            },
-            success: function(data) {
-                if (data.status === 'success') {
-                    loadChat(data.chat_id);
-                    $('#search-results').hide();
-                }
-            },
-            error: function(error) {
-                console.error('Ошибка при создании чата', error);
+    const specialistId = $(this).data('specialist-id');
+    $.ajax({
+        url: `start_chat/`,
+        method: 'POST',
+        data: {
+            specialist_id: specialistId,
+            csrfmiddlewaretoken: '{{ csrf_token }}'
+        },
+        success: function(data) {
+            if (data.status === 'success') {
+                // Обновляем данные о чате
+                $('#chat-messages').data('chat-id', data.chatId);
+                $('#chat-with').text(data.specialist_name);
+                $('#avatar-with').attr('src', data.specialist_photo);
+                $('#messages-list').html('');
+                $('#average-rating').text('');
+
+                $('#search-results').hide();
+                loadChat(data.chatId);
             }
-        });
+        },
+        error: function(error) {
+            console.error('Ошибка при создании чата', error);
+        }
     });
+});
 
-    // Обработчик клика на чат
-    $('.elem-chat-block').on('click', function() {
-        const chatId = $(this).data('chat-id');
-        loadChat(chatId);
-        $('#chat-messages').data('chat-id', chatId); // Store chat id
-    });
+$(document).on('click', '.all-chats', function() {
+    const chatId = $(this).data('chat-id');
+    loadChat(chatId);
+});
 
-    // Функция загрузки чата
+// Функция загрузки чата
     function loadChat(chatId) {
         $.ajax({
             url: `/profile/chat_detail/${chatId}/`,
@@ -178,9 +223,34 @@ $(document).ready(function() {
                 $('#chat-with').text(data.specialist);
                 $('#avatar-with').attr('src', data.specialist_photo);
                 $('#chat-contact').text(data.specialist_contact);
+                $('#average-rating').text("Средний рейтинг: " + data.average_rating);
+                $('#chat-messages').data('chat-id', chatId);
+                var currentUser = data.user;
+
+                $('.stars').attr('data-current-rating', data.user_rating);
+
+                // Получаем значение user_rating из атрибута data-current-rating
+                const userRating = $('.stars').attr('data-current-rating');
+
+                // Сначала сбросим все звезды
+                $('.stars input').prop('checked', false);
+
+                // Устанавливаем атрибут checked в зависимости от значения user_rating
+                if (userRating) {
+                    $(`.stars input[value="${userRating}"]`).prop('checked', true);
+                }
+
+                    // Показать элемент .result и установить таймер для его скрытия
+                    const resultElement = $('.stars .result');
+                    resultElement.show().css('opacity', '1');
+
+                    setTimeout(function() {
+                        resultElement.fadeOut(); // Используем jQuery fadeOut для скрытия
+                    }, 1000); // 3000 миллисекунд = 3 секунды
+
                 data.messages.forEach(function(message) {
                     $('#messages-list').append(`
-                        <div class="message ${message.sender === data.user ? 'user-message' : 'specialist-message'}">
+                        <div class="message ${message.sender === currentUser ? 'user-message' : 'specialist-message'}">
                             <p>${message.content}</p>
                             <span>${message.timestamp}</span>
                         </div>
@@ -192,6 +262,34 @@ $(document).ready(function() {
             }
         });
     }
+
+    $(document).on('click', '.delete', function(event) {
+    event.stopPropagation(); // Останавливаем всплытие события
+    const chatBlock = $(this).closest('.elem-chat-block');
+    const chatId = chatBlock.data('chat-id');
+
+    if (confirm('Вы уверены, что хотите удалить этот чат?')) {
+        $.ajax({
+            url: `/profile/delete_chat/${chatId}/`,
+            method: 'POST',
+            data: {
+                'csrfmiddlewaretoken': '{{ csrf_token }}'
+            },
+            success: function(data) {
+                if (data.status === 'success') {
+                    chatBlock.remove();
+                    alert('Чат успешно удален.');
+                } else {
+                    alert('Ошибка при удалении чата: ' + data.message);
+                }
+            },
+            error: function(error) {
+                console.error('Ошибка при удалении чата', error);
+                alert('Ошибка при удалении чата.');
+            }
+        });
+    }
+});
 
     // Обработчик клика на кнопку "Назад к чатам"
     $('#back-to-chats').on('click', function() {
@@ -341,3 +439,168 @@ var csrftoken = getCookie('csrftoken');
         }
     });
 });
+
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('bmiChart').getContext('2d');
+
+    fetch('get_bmi_data/')
+        .then(response => response.json())
+        .then(data => {
+            const bmiChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.dates,
+                    datasets: [
+                        {
+                            label: 'Вес (кг)',
+                            data: data.weights,
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                            fill: true,
+                            pointBackgroundColor: 'rgba(75, 192, 192, 1)',
+                            pointBorderColor: '#fff',
+                            pointHoverBackgroundColor: '#fff',
+                            pointHoverBorderColor: 'rgba(75, 192, 192, 1)'
+                        },
+                        {
+                            label: 'Рост (м)',
+                            data: data.heights,
+                            borderColor: 'rgba(153, 102, 255, 1)',
+                            backgroundColor: 'rgba(153, 102, 255, 0.2)',
+                            fill: true,
+                            pointBackgroundColor: 'rgba(153, 102, 255, 1)',
+                            pointBorderColor: '#fff',
+                            pointHoverBackgroundColor: '#fff',
+                            pointHoverBorderColor: 'rgba(153, 102, 255, 1)'
+                        },
+                        {
+                            label: 'Гемоглобин',
+                            data: data.hemoglobin,
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                            fill: true,
+                            pointBackgroundColor: 'rgba(255, 99, 132, 1)',
+                            pointBorderColor: '#fff',
+                            pointHoverBackgroundColor: '#fff',
+                            pointHoverBorderColor: 'rgba(255, 99, 132, 1)'
+                        },
+                        {
+                            label: 'Лейкоциты',
+                            data: data.leukocytes,
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                            fill: true,
+                            pointBackgroundColor: 'rgba(54, 162, 235, 1)',
+                            pointBorderColor: '#fff',
+                            pointHoverBackgroundColor: '#fff',
+                            pointHoverBorderColor: 'rgba(54, 162, 235, 1)'
+                        },
+                        {
+                            label: 'Лимфоциты',
+                            data: data.lymphocytes,
+                            borderColor: 'rgba(255, 206, 86, 1)',
+                            backgroundColor: 'rgba(255, 206, 86, 0.2)',
+                            fill: true,
+                            pointBackgroundColor: 'rgba(255, 206, 86, 1)',
+                            pointBorderColor: '#fff',
+                            pointHoverBackgroundColor: '#fff',
+                            pointHoverBorderColor: 'rgba(255, 206, 86, 1)'
+                        },
+                        {
+                            label: 'Систолическое давление',
+                            data: data.systolic,
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                            fill: true,
+                            pointBackgroundColor: 'rgba(75, 192, 192, 1)',
+                            pointBorderColor: '#fff',
+                            pointHoverBackgroundColor: '#fff',
+                            pointHoverBorderColor: 'rgba(75, 192, 192, 1)'
+                        },
+                        {
+                            label: 'Диастолическое давление',
+                            data: data.diastolic,
+                            borderColor: 'rgba(153, 102, 255, 1)',
+                            backgroundColor: 'rgba(153, 102, 255, 0.2)',
+                            fill: true,
+                            pointBackgroundColor: 'rgba(153, 102, 255, 1)',
+                            pointBorderColor: '#fff',
+                            pointHoverBackgroundColor: '#fff',
+                            pointHoverBorderColor: 'rgba(153, 102, 255, 1)'
+                        },
+                        {
+                            label: 'Частота пульса',
+                            data: data.pulse_rate,
+                            borderColor: 'rgba(255, 159, 64, 1)',
+                            backgroundColor: 'rgba(255, 159, 64, 0.2)',
+                            fill: true,
+                            pointBackgroundColor: 'rgba(255, 159, 64, 1)',
+                            pointBorderColor: '#fff',
+                            pointHoverBackgroundColor: '#fff',
+                            pointHoverBorderColor: 'rgba(255, 159, 64, 1)'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    title: {
+                        display: true,
+                        text: 'График изменения параметров по датам',
+                        fontSize: 18,
+                        fontColor: '#333'
+                    },
+                    legend: {
+                        position: 'top',
+                        labels: {
+                            fontColor: '#333',
+                            fontSize: 12
+                        }
+                    },
+                    scales: {
+                        xAxes: [{
+                            display: true,
+                            scaleLabel: {
+                                display: true,
+                                labelString: 'Дата',
+                                fontColor: '#333'
+                            },
+                            ticks: {
+                                fontColor: '#333'
+                            }
+                        }],
+                        yAxes: [{
+                            display: true,
+                            ticks: {
+                                beginAtZero: true,
+                                fontColor: '#333'
+                            },
+                            scaleLabel: {
+                                display: true,
+                                labelString: 'Значение',
+                                fontColor: '#333'
+                            },
+                            gridLines: {
+                                display: true,
+                                color: "rgba(75, 192, 192, 0.2)"
+                            }
+                        }]
+                    },
+                    tooltips: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    hover: {
+                        mode: 'nearest',
+                        intersect: true
+                    }
+                }
+            });
+        })
+        .catch(error => console.error('Error fetching BMI data:', error));
+});
+
+
+
+function redirectToTelegram() {
+    window.open("https://t.me/HealthFlow_bot", "_blank");
+}

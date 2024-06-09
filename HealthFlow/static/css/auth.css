@@ -125,3 +125,12 @@ body{
     text-align: center;
     color: #000;
 }
+
+.for-errors{
+    margin: 20px auto;
+    text-align: center
+}
+
+#errors{
+    color: aqua;
+}

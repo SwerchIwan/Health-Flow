@@ -41,7 +41,7 @@
     </script>
 </head>
 <body>
-    <canvas  class="is-full-screen"></canvas>
+    <canvas  class="is-full-screen canvas"></canvas>
     <div class="block-auth is-full-screen is-center ">
         <div class="__block-auth">
             <div class="__block-auth-elem text-center is-horizontal-align ">
@@ -72,7 +72,9 @@
                             {% endblock %}
                             {% block btn_func %} {% endblock %}
                             {% block btn_func_two %} {% endblock %}
-
+                            <div class="for-errors">
+                                <p id="errors"></p>
+                            </div>
                         </div>
                     </form>
                 </div>

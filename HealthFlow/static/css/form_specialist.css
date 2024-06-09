@@ -1,0 +1,138 @@
+::-webkit-scrollbar {
+  display: none;
+}
+
+:root {
+  --bg-color: #fff;
+  --bg-secondary-color: #f3f3f6;
+  --color-primary: #fff;
+  --color-lightGrey: #d2d6dd;
+  --color-grey: #747681;
+  --color-darkGrey: #3f4144;
+  --color-error: #d43939;
+  --color-success: #28bd14;
+  --grid-maxWidth: 120rem;
+  --grid-gutter: 2rem;
+  --font-size: 2rem;
+  --font-color: #333333;
+  --font-color-white: #fff;
+  --font-family: 'Yandex-bold';
+  --maxWidth: 1600px;
+}
+
+body{
+    overflow: hidden;
+}
+
+
+
+@font-face {
+    font-family: 'YandexSansDisplay-Bold';
+    src: url('font/YandexSansDisplay-Bold.ttf');
+}
+
+@font-face {
+    font-family: 'norwester';
+    src: url('font/norwester.otf');
+}
+
+@font-face {
+    font-family: 'Montserrat-Medium';
+    src: url('font/Montserrat-Medium.ttf');
+}
+
+
+.block-form-specialist{
+    height: 100vh;
+}
+
+.__block-form-specialist{
+    max-width: 1000px;
+    width: 650px;
+    min-width: 400px;
+    max-height: 100%;
+    min-height: 600px;
+}
+
+.__logo-png{
+    max-width: 100px;
+}
+
+.__logo{
+    display: flex;
+    align-items: center;
+}
+
+.__logo-head-text{
+    font-family: 'norwester';
+    font-size: 40px;
+}
+
+
+.__logo-text{
+    font-family: 'Montserrat-Medium';
+    font-size: 14px;
+}
+
+.__block-title-form-specialist{
+    color: white;
+    margin-top: 30px;
+}
+
+.__block-title-form-specialist{
+     max-width: 650px;
+}
+
+.title-specialist-form{
+    font-family: 'Montserrat-Medium';
+}
+
+.info-title-specialist-form{
+    margin-top: 10px;
+    font-family: 'YandexSansDisplay-Bold';
+}
+
+canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: hsla(214, 63%, 22%, 1);;
+}
+
+canvas {
+  position: absolute;
+  z-index: -1;
+}
+
+.block-form-specialist{
+    mix-blend-mode: difference;
+}
+
+.info-title-specialist-form{
+    font-size: 14px;
+}
+
+.name-lastname-specialist{
+    display: flex;
+    justify-content: space-between;
+}
+
+.name-lastname-specialist{
+    margin-top: 30px;
+}
+
+.mix-blend{
+    color: white;
+}
+
+.add{
+    width: 80%;
+}
+
+#more-info{
+   resize: none;
+}
+
+#file-img{
+    color: white;
+}

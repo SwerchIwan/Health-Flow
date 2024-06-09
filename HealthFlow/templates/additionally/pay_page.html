@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    {% load static %}
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Форма оплаты</title>
+    <link rel="shortcut icon"  type="image/png" href="{% static '/css/img/icon.ico' %}" sizes="32x32"/>
+    <!-- Google Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Stylesheet -->
+
+    <link rel="stylesheet" href="{% static 'css/style-pay.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  </head>
+  <body>
+    <div class="wrapper">
+      <div class="name-sub">
+           <h1>Подписка {{ subscription }}</h1>
+      </div>
+      <div class="credit-card" id="card">
+        <div class="card-front">
+          <div class="branding">
+            <img src="{% static '/css/img/chip.png' %}" class="chip-img" />
+            <img src="{% static '/css/img/visa.png' %}" class="visa-logo" />
+          </div>
+          <div class="card-number">
+            <div>
+              <span class="card-number-display">_</span>
+              <span class="card-number-display">_</span>
+              <span class="card-number-display">_</span>
+              <span class="card-number-display">_</span>
+            </div>
+            <div>
+              <span class="card-number-display">_</span>
+              <span class="card-number-display">_</span>
+              <span class="card-number-display">_</span>
+              <span class="card-number-display">_</span>
+            </div>
+            <div>
+              <span class="card-number-display">_</span>
+              <span class="card-number-display">_</span>
+              <span class="card-number-display">_</span>
+              <span class="card-number-display">_</span>
+            </div>
+            <div>
+              <span class="card-number-display">_</span>
+              <span class="card-number-display">_</span>
+              <span class="card-number-display">_</span>
+              <span class="card-number-display">_</span>
+            </div>
+          </div>
+          <div class="details">
+            <div>
+              <span>Card Holder</span>
+              <span id="card-holder-name">Your Name Here</span>
+            </div>
+            <div>
+              <span>Expires</span>
+              <span id="validity">06/28</span>
+            </div>
+          </div>
+        </div>
+        <div class="card-back">
+          <div class="black-strip"></div>
+          <div class="white-strip">
+            <span>CVV</span>
+            <div id="cvv-display"></div>
+          </div>
+          <img src="" class="visa-logo" />
+        </div>
+      </div>
+      <form id="payment-form" method="post" action="{% url 'process_payment' %}">
+        {% csrf_token %}
+        <label for="card-number">Номер карты:</label>
+        <input type="number" id="card-number" placeholder="1234-1234-1234-1234" />
+
+        <label for="card-holder">Имя держателя карты:</label>
+        <input type="text" id="card-name-input" placeholder="Ваше имя" />
+
+        <div class="date-cvv">
+          <div>
+            <label for="validity">Годен до:</label>
+            <input type="date" id="validity-input" />
+          </div>
+          <div>
+            <label for="cvv">CVV:</label>
+            <input type="number" id="cvv" placeholder="***" />
+          </div>
+        </div>
+         <input type="hidden" name="subscription" value="{{ subscription }}">
+
+        <div class="button-accept">
+          <input class="pay_" type="submit" value="Оплатить">
+        </div>
+      </form>
+    </div>
+    <!-- Script -->
+    <script src="{% static 'js/pay.js' %}"></script>
+  </body>
+</html>

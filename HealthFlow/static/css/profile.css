@@ -480,23 +480,23 @@ input[type="date"]{
   color: gold;
   text-shadow: 1px 1px goldenrod;
 }
-.stars .result:before{
-  position: absolute;
-  content: "";
-  width: 100%;
-  left: 50%;
-  transform: translateX(-47%);
-  bottom: 0px;
-  font-size: 30px;
-  font-weight: 500;
-  display: none;
+.stars .result:before {
+    position: absolute;
+    content: "";
+    width: 100%;
+    left: 50%;
+    transform: translateX(-47%);
+    bottom: 0px;
+    font-size: 30px;
+    font-weight: 500;
+    display: none;
 }
 
-.stars{
+.stars {
     color: gold;
 }
 
-.result:before{
+.result:before {
     background-color: white;
     padding: 15px;
     border-radius: 15px;
@@ -508,23 +508,23 @@ input[type="date"]{
     font-size: 20px;
 }
 
-.stars input:checked ~ .result:before{
-  display: block;
+.stars input:checked ~ .result:before {
+    display: block;
 }
-.stars #five:checked ~ .result:before{
-  content: "🥰";
+.stars #five:checked ~ .result:before {
+    content: "🥰";
 }
-.stars #four:checked ~ .result:before{
-  content: "😆";
+.stars #four:checked ~ .result:before {
+    content: "😆";
 }
-.stars #three:checked ~ .result:before{
-  content: "😊";
+.stars #three:checked ~ .result:before {
+    content: "😊";
 }
-.stars #two:checked ~ .result:before{
-  content: "😞";
+.stars #two:checked ~ .result:before {
+    content: "😞";
 }
-.stars #one:checked ~ .result:before{
-  content: "😭";
+.stars #one:checked ~ .result:before {
+    content: "😭";
 }
 
 .btn-send img{
@@ -542,3 +542,4 @@ input[type="date"]{
     width: 300px;
     padding: 10px;
 }
+

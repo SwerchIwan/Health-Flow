@@ -1,11 +1,12 @@
 import secrets
 import string
-from random import random
-
+import random
+from twilio.rest import Client
+from asgiref.sync import async_to_sync
 from django.contrib.auth import get_user_model
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
-from django.core.mail import send_mail
+from django.core.mail import send_mail, EmailMultiAlternatives
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render, redirect
 from django.template.loader import render_to_string
@@ -14,6 +15,7 @@ from django.core.cache import cache
 from django.db import models
 from django.utils import timezone
 import json
+from tg import send_code_to_user_task
 
 User = get_user_model()
 
@@ -51,19 +53,25 @@ def login_user(request):
         auth_choice = request.session.get('auth_choice')
 
         if auth_choice == 'email':
-            user = User.objects.filter(email=auth_input).first()  # Найти пользователя по электронной почте
+            user = User.objects.filter(email=auth_input).first()
             if user is not None:
-                user = authenticate(request, username=user.username, password=password)  # Проверить пароль
+                user = authenticate(request, username=user.username, password=password)
         elif auth_choice == 'phone':
-            user = authenticate(request, username=auth_input, password=password)  # Найти пользователя по телефону
+            user = User.objects.filter(phone=auth_input).first()
+            if user is not None:
+                user = authenticate(request, username=user.username, password=password)
         else:
             user = None
 
         if user and user.is_active:
             login(request, user)
-            return HttpResponseRedirect(reverse('profile_page'))
+            if user.is_superuser:
+                return redirect('/admin/')
+            else:
+                return HttpResponseRedirect(reverse('profile_page'))
         else:
-            return HttpResponse("Invalid login details")
+            error_message = "Неверный пароль"
+            return render(request, 'additionally/aut-step-two.html', {'error_message': error_message})
     else:
         return redirect('auth_page')
 
@@ -78,6 +86,10 @@ def reg_page(request):
 
 def check(request):
     return render(request, 'confirmation_sent.html')
+
+
+
+
 
 def register_user(request):
     if request.method == 'POST':
@@ -106,10 +118,47 @@ def register_user(request):
         # Send email with confirmation link
         confirmation_link = request.build_absolute_uri(reverse('confirm_registration', args=[confirmation_token]))
         email_subject = 'Registration Confirmation'
-        email_body = render_to_string('email_confirmation.html', {'confirmation_link': confirmation_link})
-        send_mail(email_subject, email_body, 'kiselslaw@yandex.ru', [email])
+        confirmation_link = request.build_absolute_uri(reverse('confirm_registration', args=[confirmation_token]))
+        confirmation_code = confirmation_link  # Пример кода подтверждения
+        logo_path = 'static/css/img/logo.png'
+        # Собираем контекст с переменными для передачи в шаблон
+        context = {'confirmation_link': confirmation_link, 'confirmation_code': confirmation_code, 'logo_path': logo_path}
+
+        # Рендерим HTML-сообщение с передачей контекста
+        html_message = render_to_string('email_confirmation.html', context)
+
+        email = EmailMultiAlternatives(
+            email_subject,  # Тема письма
+            '',  # Текстовое сообщение (можно оставить пустым)
+            'kiselslaw@yandex.ru',  # От кого
+            [email]  # Кому
+        )
+        email.attach_alternative(html_message, "text/html")  # Прикрепляем HTML-сообщение
+
+        email.send()
 
         return render(request, 'confirmation_sent.html')
+    else:
+        return redirect('auth_page')
+
+
+def confirm_phone_registration(request):
+    if request.method == 'POST':
+        phone = request.POST.get('phone')
+        confirmation_code = request.POST.get('confirmation_code')
+        cached_code = cache.get(f'{phone}_confirmation_code')
+
+        if cached_code and str(cached_code) == confirmation_code:
+            user_data = json.loads(cache.get(phone))
+            user = User.objects.create_user(username=user_data['username'], password=user_data['password'])
+            #profile = Profile.objects.create(user=user, phone=user_data['phone'])  # Если у вас есть модель профиля
+            user.is_active = True
+            user.save()
+
+            return redirect('success_page')  # Перенаправление на страницу успеха
+        else:
+            error_message = "Неправильный код подтверждения."
+            return render(request, 'enter_confirmation_code.html', {'phone': phone, 'error_message': error_message})
     else:
         return redirect('auth_page')
 
