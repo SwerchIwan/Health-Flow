@@ -15,7 +15,8 @@ from django.core.cache import cache
 from django.db import models
 from django.utils import timezone
 import json
-from tg import send_code_to_user_task
+from twilio.rest import Client
+import os
 
 User = get_user_model()
 
@@ -93,74 +94,110 @@ def check(request):
 
 def register_user(request):
     if request.method == 'POST':
-        email = request.POST.get('inputField')
+        auth_input = request.POST.get('inputField')
         password = request.POST.get('password')
+        auth_choice = request.POST.get('choice')  # 'email' or 'phone'
 
-        # Check if user with this email already exists
-        if User.objects.filter(email=email).exists():
-            return HttpResponse("User with this email already exists")
+        if not auth_input or not password:
+            return HttpResponse("All fields must be filled.")
 
-        # Generate username based on email
-        username = email.split('@')[0]
+        if auth_choice == 'email':
+            email = auth_input
 
-        # Create a temporary user object with is_active=False
-        temp_user = User(username=username, email=email)
-        temp_user.set_password(password)
-        temp_user.is_active = False
+            if User.objects.filter(email=email).exists():
+                return HttpResponse("User with this email already exists")
 
-        # Generate a unique token for registration confirmation
-        confirmation_token = PasswordResetTokenGenerator().make_token(temp_user)
+            username = email.split('@')[0]
 
-        # Save user data in cache
-        user_data = {'username': username, 'email': email, 'password': password}
-        cache.set(confirmation_token, json.dumps(user_data), timeout=3600)  # Set expiration time (e.g., 1 hour)
+            temp_user = User(username=username, email=email)
+            temp_user.set_password(password)
+            temp_user.is_active = False
 
-        # Send email with confirmation link
-        confirmation_link = request.build_absolute_uri(reverse('confirm_registration', args=[confirmation_token]))
-        email_subject = 'Registration Confirmation'
-        confirmation_link = request.build_absolute_uri(reverse('confirm_registration', args=[confirmation_token]))
-        confirmation_code = confirmation_link  # Пример кода подтверждения
-        logo_path = 'static/css/img/logo.png'
-        # Собираем контекст с переменными для передачи в шаблон
-        context = {'confirmation_link': confirmation_link, 'confirmation_code': confirmation_code, 'logo_path': logo_path}
+            confirmation_token = PasswordResetTokenGenerator().make_token(temp_user)
 
-        # Рендерим HTML-сообщение с передачей контекста
-        html_message = render_to_string('email_confirmation.html', context)
+            user_data = {'username': username, 'email': email, 'password': password}
+            cache.set(confirmation_token, json.dumps(user_data), timeout=3600)
 
-        email = EmailMultiAlternatives(
-            email_subject,  # Тема письма
-            '',  # Текстовое сообщение (можно оставить пустым)
-            'kiselslaw@yandex.ru',  # От кого
-            [email]  # Кому
-        )
-        email.attach_alternative(html_message, "text/html")  # Прикрепляем HTML-сообщение
+            confirmation_link = request.build_absolute_uri(reverse('confirm_registration', args=[confirmation_token]))
+            email_subject = 'Registration Confirmation'
+            confirmation_code = confirmation_link  # Example of a confirmation code
+            logo_path = 'static/css/img/logo.png'
 
-        email.send()
+            context = {'confirmation_link': confirmation_link, 'confirmation_code': confirmation_code, 'logo_path': logo_path}
+            html_message = render_to_string('email_confirmation.html', context)
 
-        return render(request, 'confirmation_sent.html')
+            email_message = EmailMultiAlternatives(
+                email_subject,
+                '',
+                'kiselslaw@yandex.ru',
+                [email]
+            )
+            email_message.attach_alternative(html_message, "text/html")
+            email_message.send()
+
+            return render(request, 'confirmation_sent.html')
+
+        elif auth_choice == 'phone':
+            phone = auth_input
+
+            if User.objects.filter(username=phone).exists():  # Assuming phone number is used as username
+                return HttpResponse("User with this phone already exists")
+
+            username = phone
+            confirmation_code = random.randint(100000, 999999)
+
+            user_data = {'username': username, 'phone': phone, 'password': password, 'confirmation_code': str(confirmation_code)}
+            cache.set(f'{phone}_confirmation_code', json.dumps(user_data), timeout=3600)
+
+            sms_status = sending_sms(text=f'Ваш код подтверждения {confirmation_code}', receiver=phone)
+
+            return render(request, 'confirmation_sent.html', {'phone': phone})
+
     else:
         return redirect('auth_page')
 
+def sending_sms(text='Wake up Neo...', receiver='+89876540000'):
+    try:
+        account_sid = 'AC10a061a838658a53db4f0272d4f2a89d'
+        auth_token = '8d42453b72ad19b03fed92764db7b264'
+
+        client = Client(account_sid, auth_token)
+
+        message = client.messages.create(
+            body=text,
+            from_='+12077695734',  # Replace with your Twilio number
+            to=receiver
+        )
+
+        return 'The message was successfully sent!'
+    except Exception as ex:
+        return f'Something went wrong... :({ex})'
 
 def confirm_phone_registration(request):
     if request.method == 'POST':
         phone = request.POST.get('phone')
         confirmation_code = request.POST.get('confirmation_code')
-        cached_code = cache.get(f'{phone}_confirmation_code')
+        user_data_json = cache.get(f'{phone}_confirmation_code')
 
-        if cached_code and str(cached_code) == confirmation_code:
-            user_data = json.loads(cache.get(phone))
-            user = User.objects.create_user(username=user_data['username'], password=user_data['password'])
-            #profile = Profile.objects.create(user=user, phone=user_data['phone'])  # Если у вас есть модель профиля
-            user.is_active = True
-            user.save()
+        if user_data_json:
+            user_data = json.loads(user_data_json)
+            cached_code = user_data['confirmation_code']
 
-            return redirect('success_page')  # Перенаправление на страницу успеха
+            if str(cached_code) == str(confirmation_code):
+                user = User.objects.create_user(username=user_data['username'], password=user_data['password'])
+                user.is_active = True
+                user.save()
+
+                cache.delete(f'{phone}_confirmation_code')
+
+                return render(request, 'registration_confirmed.html')
+            else:
+                error_message = "Invalid confirmation code."
+                return render(request, 'enter_confirmation_code.html', {'phone': phone, 'error_message': error_message})
         else:
-            error_message = "Неправильный код подтверждения."
-            return render(request, 'enter_confirmation_code.html', {'phone': phone, 'error_message': error_message})
+            return HttpResponse("Invalid or expired confirmation code.")
     else:
-        return redirect('auth_page')
+        return render(request, 'enter_confirmation_code.html')
 
 def confirm_registration(request, token):
     user_data_json = cache.get(token)

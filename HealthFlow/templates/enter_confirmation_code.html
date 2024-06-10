@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Confirm Registration</title>
+</head>
+<body>
+    <h1>Confirm Your Registration</h1>
+    <form method="POST">
+        {% csrf_token %}
+        <label for="confirmation_code">Confirmation Code:</label>
+        <input type="text" id="confirmation_code" name="confirmation_code" required>
+        <button type="submit">Confirm</button>
+    </form>
+    {% if error_message %}
+        <p style="color: red;">{{ error_message }}</p>
+    {% endif %}
+</body>
+</html>

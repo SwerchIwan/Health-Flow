@@ -46,8 +46,10 @@
         <div class="__block-auth">
             <div class="__block-auth-elem text-center is-horizontal-align ">
                 <div class="header-logo">
-                    <div class="__logo-png ">
-                        <img src="{% static 'css/img/logo-dark.png' %}" alt="">
+                    <div class="__logo-png">
+                        <a href='/'> <!-- Замените https://example.com на нужную вам ссылку -->
+                            <img src="{% static 'css/img/logo-dark.png' %}" alt="Logo">
+                        </a>
                     </div>
                     <div class="__logo-text">
                         <div class="__logo-head-text">
@@ -62,7 +64,7 @@
                 <div class="block-title text-center">
                     <p>{% block information %} {% endblock %}</p>
                 </div>
-
+                {% block main %}
                 <div class="elem-panel">
                      <form {% block action %} {% endblock %} method="post">
                              {% csrf_token %}
@@ -78,6 +80,7 @@
                         </div>
                     </form>
                 </div>
+            {% endblock %}
             {% block additionally %} {% endblock %}
         </div>
     </div>

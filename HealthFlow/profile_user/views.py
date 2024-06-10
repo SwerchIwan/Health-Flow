@@ -14,7 +14,7 @@ def create_specialist(request):
 
     # Проверка на существование заявки
     if SpecialistApplication.objects.filter(user=user).exists():
-        return redirect('another_page_url_name')
+        return render(request, 'profile/wait.html')
 
     if request.method == 'POST':
         first_name = request.POST.get('first_name')

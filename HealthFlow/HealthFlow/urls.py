@@ -6,7 +6,7 @@ from django.views.decorators.csrf import csrf_exempt
 from HealthFlow import settings
 from home.views import index_page, window_page
 from subscription.views import pay_page, process_payment, payment_success
-from users.views import auth_page, auth_page_two, reg_page, login_user, logout_user, register_user, confirm_registration,check
+from users.views import auth_page, auth_page_two, reg_page, login_user, logout_user, register_user, confirm_registration,check, confirm_phone_registration
 from django.views.generic import TemplateView
 # from messenger.views import *
 from diary.views import *
@@ -45,6 +45,10 @@ urlpatterns = [
     path('payment_success/', payment_success, name='payment_success'),
     path('profile/get_bmi_data/', get_bmi_data, name='get_bmi_data'),
     path('process-message/', process_message, name='process-message'),
+    path('register/', register_user, name='register_user'),
+    path('confirm/<str:token>/', confirm_registration, name='confirm_registration'),
+    path('confirm_phone/', confirm_phone_registration, name='confirm_phone_registration'),
+    path('check/', check, name='check'),
 ]
 
 # Добавьте это в конец файла

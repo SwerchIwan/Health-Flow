@@ -1,7 +1,29 @@
-<!-- aut-step-one.html -->
 {% extends "base-auth.html" %}
 {% load static %}
 
-{% block information %} На ваш адрес электронной почты было отправлено письмо с инструкциями для завершения регистрации.{% endblock %}
+{% csrf_token %}
 
+{% block main %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Confirmation Sent</title>
+</head>
+<body>
+    <h1>Сообщение</h1>
+    <p>Код был отправлен по номеру {{ phone|default:"email" }}.</p>
 
+    {% if phone %}
+        <form action="{% url 'confirm_phone_registration' %}" method="post">
+            {% csrf_token %}
+            <input type="hidden" name="phone" value="{{ phone }}">
+            <label for="confirmation_code">Код подтверждения:</label>
+            <input type="text" id="confirmation_code" name="confirmation_code" required>
+            <button type="submit">Отправить</button>
+        </form>
+    {% else %}
+        <p>Please check your email to confirm your registration.</p>
+    {% endif %}
+</body>
+</html>
+{% endblock %}
