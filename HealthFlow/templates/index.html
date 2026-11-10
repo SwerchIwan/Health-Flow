@@ -1,136 +1,115 @@
 {% extends "base.html" %}
+{% load static %}
 
-{% block title %} Главная {% endblock %}
+{% block title %}Health Flow AI — Главная{% endblock %}
 
-{% block canvas %}<canvas class="canvas"></canvas>{% endblock %}
+{% block styles %}<link rel="stylesheet" href="{% static 'css/home.css' %}">{% endblock %}
 
 {% block content %}
-{% load static %}
-<div class="center">
-      <div class="content">
-        <div class="page">
-          <div class="page-content">
-              <div class="intro">
-                    <div class="__intro">
-                             <div class="title-text is-full-width">
-                            <div class="__title-text text-center">
-                                <div class="__title-text-main">
-                                    <h1>Добро пожаловать в светлое будущее с Health Flow</h1>
-                                </div>
-                                <div class="__title-text-side">
-                                    <p>И еще немного текста и вот еще чуть.</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="change-color ">
-                            <div class="__change-color text-center">
-                                <button href="" class="button outline ">B</button>
-                                <button href="" class="button outline ">W</button>
-                            </div>
-                        </div>
-                    </div>
-
+<div class="home">
+    <section class="hero">
+        <div>
+            <span class="hf-eyebrow">Health Flow AI</span>
+            <h1 class="hero__title">Добро пожаловать в светлое будущее с Health Flow</h1>
+            <p class="hero__lead">
+                Программное обеспечение для здоровья: личный дневник, AI-помощник и связь
+                с проверенными специалистами в одном месте.
+            </p>
+            <div class="hero__actions">
+                <a href="/accounts/registration/" class="btn btn--primary">Начать бесплатно</a>
+                <a href="{% url 'specialists_catalog' %}" class="btn btn--light">Каталог специалистов</a>
             </div>
-          </div>
         </div>
+        <div class="hero__art" aria-hidden="true">
+            <div class="hero__orb hero__orb--a"></div>
+            <div class="hero__orb hero__orb--b"></div>
+            <div class="hero__orb hero__orb--c"></div>
+            <div class="hero__pulse"></div>
+            <div class="hero__pulse"></div>
+        </div>
+    </section>
 
-        <div class="page">
-          <div class="page-content">
-              <div class="about_us">
-                <div class="__about_us text-center">
-                    <div class="title-text is-full-width">
-                            <div class="__title-text text-center">
-                                <div class="__title-text-main">
-                                    <h1>Немного информации о нас</h1>
-                                </div>
-                                <div class="__title-text-side">
-                                    <p>Мы молодой стартап, который специализируется на программном обеспечении для здоровья. И помощи для людей с поиском специалистов.</p>
-                                </div>
-                            </div>
-                            <div class="block-social is-full-width is-center">
-                                <div class="__block-social is-vertical-align">
-                                    <div class="elem-social">
-                                        <a href=""><img src="{% static 'css/img/facebook.png' %}" alt=""></a>
-                                    </div>
-                                    <div class="elem-social">
-                                        <a href=""><img src="{% static 'css/img/instagram.png' %}" alt=""></a>
-                                    </div>
-                                    <div class="elem-social">
-                                        <a href="https://t.me/BalmyJuice"><img src="{% static 'css/img/telegram.png' %}" alt=""></a>
-                                    </div>
-                                </div>
-                            </div>
-                    </div>
-                </div>
-              </div>
-          </div>
+    <section class="stats">
+        <div class="stat">
+            <div class="stat__value">24/7</div>
+            <div class="stat__label">AI-помощник по вопросам здоровья</div>
         </div>
+        <div class="stat">
+            <div class="stat__value">7 дней</div>
+            <div class="stat__label">Средний срок проверки заявки специалиста</div>
+        </div>
+        <div class="stat">
+            <div class="stat__value">{{ specialists_count }}</div>
+            <div class="stat__label">Специалиста в каталоге по разным направлениям</div>
+        </div>
+    </section>
 
-        <div class="page">
-          <div class="page-content">
-              <div class="subscriptions row">
-                  <div class="standart subscription cornered-border col-3 text-center">
-                      <div class="subscription-content">
-                          <div class="subscription-title">
-                              <h1>STANDART</h1>
-                          </div>
-                          <div class="subscription-price">
-                              <p>29 руб.</p>
-                          </div>
-                          <div class="subscription-text">
-                              <p>- Позволяет общаться с пользователями базового уровня знаний</p>
-                              <p>- Специалисты быстрее реагируют на сообщения</p>
-                              <p>- Сразу же определяют курс лечения</p>
-                          </div>
-                          <div class="subscription-buy">
-                             <a href="{% url 'pay' %}?subscription=STANDART" class="button outline">Оформить</a>
-                          </div>
-                      </div>
-                  </div>
-                  <div class="col auto"></div>
-                  <div class="plus subscription col-3 text-center">
-                      <div class="subscription-content">
-                          <div class="subscription-title">
-                              <h1>PRO</h1>
-                          </div>
-                          <div class="subscription-price">
-                              <p>49 руб.</p>
-                          </div>
-                          <div class="subscription-text">
-                              <p>- Позволяет общаться с пользователями самого выского уровня</p>
-                              <p>- Специалисты моментально реагируют на сообщения </p>
-                              <p>- Сразу же определяют курс лечения</p>
-                          </div>
-                          <div class="subscription-buy">
-                             <a  href="{% url 'pay' %}?subscription=PRO" class="button outline ">Оформить</a>
-                          </div>
-                      </div>
-                  </div>
-                  <div class="col auto"></div>
-                  <div class="pro subscription cornered-border col-3 text-center">
-                      <div class="subscription-content">
-                          <div class="subscription-title">
-                              <h1>PLUS</h1>
-                          </div>
-                          <div class="subscription-price">
-                              <p>79 руб.</p>
-                          </div>
-                          <div class="subscription-text">
-                              <p>- Позволяет общаться с пользователями более выского уровня</p>
-                              <p>- Специалисты быстрее реагируют на сообщения</p>
-                              <p>- Быстрее определяют курс лечения</p>
-                          </div>
-                          <div class="subscription-buy">
-                             <a href="{% url 'pay' %}?subscription=PLUS" class="button outline ">Оформить</a>
-                          </div>
-                      </div>
-                  </div>
-              </div>
-          </div>
+    <section class="about">
+        <div>
+            <span class="hf-eyebrow">О нас</span>
+            <h2 class="hf-section-title" style="margin-top:12px">Немного информации о нас</h2>
+            <p style="color:var(--ink-soft);line-height:1.7;margin-top:14px">
+                Мы молодой стартап, который специализируется на программном обеспечении для здоровья
+                и помощи людям в поиске специалистов.
+            </p>
+            <div class="social">
+                <a href="" aria-label="Facebook"><img src="{% static 'css/img/facebook.png' %}" alt=""></a>
+                <a href="" aria-label="Instagram"><img src="{% static 'css/img/instagram.png' %}" alt=""></a>
+                <a href="https://t.me/HealthFlow_bot" target="_blank" rel="noopener" aria-label="Telegram">
+                    <img src="{% static 'css/img/telegram.png' %}" alt="">
+                </a>
+            </div>
         </div>
-      </div>
+        <div class="about__card">
+            <h3 style="font-size:20px">Что внутри</h3>
+            <ul class="plan__list" style="border-top:none;padding-top:12px">
+                <li>Дневник здоровья с графиками давления, крови и ИМТ</li>
+                <li>Приватный чат со специалистами и рейтингом</li>
+                <li>AI-ассистент Health Flow AI для быстрых ответов</li>
+            </ul>
+        </div>
+    </section>
+
+    <section id="subscriptions">
+        <div class="section-head">
+            <div>
+                <span class="hf-eyebrow">Подписки</span>
+                <h2 class="hf-section-title" style="margin-top:12px">Выберите свой ритм</h2>
+                <p>Чем выше уровень — тем быстрее отвечают специалисты и тем больше возможностей.</p>
+            </div>
+        </div>
+        <div class="plans">
+            <div class="plan">
+                <div class="plan__name">STANDART</div>
+                <div class="plan__price">29 <span class="currency">Br</span> <small>/ мес</small></div>
+                <ul class="plan__list">
+                    <li>Общение со специалистами базового уровня</li>
+                    <li>Специалисты быстрее отвечают на сообщения</li>
+                    <li>Быстрое определение курса лечения</li>
+                </ul>
+                <a href="{% url 'pay' %}?subscription=STANDART" class="btn btn--dark btn--full">Оформить</a>
+            </div>
+            <div class="plan plan--featured">
+                <div class="plan__name">PRO</div>
+                <div class="plan__price">49 <span class="currency">Br</span> <small>/ мес</small></div>
+                <ul class="plan__list">
+                    <li>Общение со специалистами высшего уровня</li>
+                    <li>Моментальная реакция на сообщения</li>
+                    <li>Быстрое определение курса лечения</li>
+                </ul>
+                <a href="{% url 'pay' %}?subscription=PRO" class="btn btn--primary btn--full">Оформить</a>
+            </div>
+            <div class="plan">
+                <div class="plan__name">PLUS</div>
+                <div class="plan__price">79 <span class="currency">Br</span> <small>/ мес</small></div>
+                <ul class="plan__list">
+                    <li>Общение со специалистами продвинутого уровня</li>
+                    <li>Специалисты быстрее отвечают на сообщения</li>
+                    <li>Быстрое определение курса лечения</li>
+                </ul>
+                <a href="{% url 'pay' %}?subscription=PLUS" class="btn btn--dark btn--full">Оформить</a>
+            </div>
+        </div>
+    </section>
 </div>
-
-
 {% endblock %}
-

@@ -1,103 +1,198 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    {% load static %}
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Форма оплаты</title>
-    <link rel="shortcut icon"  type="image/png" href="{% static '/css/img/icon.ico' %}" sizes="32x32"/>
-    <!-- Google Fonts -->
-    <link
-      href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;600&display=swap"
-      rel="stylesheet"
-    />
-    <!-- Stylesheet -->
+{% extends "base.html" %}
+{% load static %}
 
-    <link rel="stylesheet" href="{% static 'css/style-pay.css' %}">
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
-  </head>
-  <body>
-    <div class="wrapper">
-      <div class="name-sub">
-           <h1>Подписка {{ subscription }}</h1>
-      </div>
-      <div class="credit-card" id="card">
-        <div class="card-front">
-          <div class="branding">
-            <img src="{% static '/css/img/chip.png' %}" class="chip-img" />
-            <img src="{% static '/css/img/visa.png' %}" class="visa-logo" />
-          </div>
-          <div class="card-number">
-            <div>
-              <span class="card-number-display">_</span>
-              <span class="card-number-display">_</span>
-              <span class="card-number-display">_</span>
-              <span class="card-number-display">_</span>
-            </div>
-            <div>
-              <span class="card-number-display">_</span>
-              <span class="card-number-display">_</span>
-              <span class="card-number-display">_</span>
-              <span class="card-number-display">_</span>
-            </div>
-            <div>
-              <span class="card-number-display">_</span>
-              <span class="card-number-display">_</span>
-              <span class="card-number-display">_</span>
-              <span class="card-number-display">_</span>
-            </div>
-            <div>
-              <span class="card-number-display">_</span>
-              <span class="card-number-display">_</span>
-              <span class="card-number-display">_</span>
-              <span class="card-number-display">_</span>
-            </div>
-          </div>
-          <div class="details">
-            <div>
-              <span>Card Holder</span>
-              <span id="card-holder-name">Your Name Here</span>
-            </div>
-            <div>
-              <span>Expires</span>
-              <span id="validity">06/28</span>
-            </div>
-          </div>
-        </div>
-        <div class="card-back">
-          <div class="black-strip"></div>
-          <div class="white-strip">
-            <span>CVV</span>
-            <div id="cvv-display"></div>
-          </div>
-          <img src="" class="visa-logo" />
-        </div>
-      </div>
-      <form id="payment-form" method="post" action="{% url 'process_payment' %}">
-        {% csrf_token %}
-        <label for="card-number">Номер карты:</label>
-        <input type="number" id="card-number" placeholder="1234-1234-1234-1234" />
+{% block title %}Оплата — Health Flow AI{% endblock %}
 
-        <label for="card-holder">Имя держателя карты:</label>
-        <input type="text" id="card-name-input" placeholder="Ваше имя" />
-
-        <div class="date-cvv">
-          <div>
-            <label for="validity">Годен до:</label>
-            <input type="date" id="validity-input" />
-          </div>
-          <div>
-            <label for="cvv">CVV:</label>
-            <input type="number" id="cvv" placeholder="***" />
-          </div>
-        </div>
-         <input type="hidden" name="subscription" value="{{ subscription }}">
-
-        <div class="button-accept">
-          <input class="pay_" type="submit" value="Оплатить">
-        </div>
-      </form>
+{% block content %}
+{% for message in messages %}
+    {% if message.tags == 'error' %}<div class="alert alert--error" style="max-width:900px;margin:0 auto 20px">{{ message }}</div>{% endif %}
+{% endfor %}
+<div class="pay">
+    <div class="pay__summary">
+        <span class="hf-eyebrow">Подписка</span>
+        <h1 class="pay__plan">{{ plan.name }}</h1>
+        <p class="pay__price">{{ plan.price|floatformat:"-2" }} <span class="currency">Br</span> <small>/ {{ plan.duration_days }} дней</small></p>
+        <ul class="plan__list pay__features">
+            {% for feature in plan.features %}<li>{{ feature }}</li>{% endfor %}
+        </ul>
+        {% if current_active %}
+            <p class="pay__note">
+                Сейчас у вас активен тариф <b>{{ subscription }}</b>{% if subscription_until %} до {{ subscription_until|date:"d.m.Y" }}{% endif %}.
+                Новая оплата заменит его и начнёт действовать сразу.
+            </p>
+        {% else %}
+            <p class="pay__note">
+                Оплата проходит в демонстрационном режиме: деньги не списываются,
+                подписка активируется сразу после подтверждения.
+            </p>
+        {% endif %}
+        <a class="btn btn--light btn--sm" href="/#subscriptions">← К тарифам</a>
     </div>
-    <!-- Script -->
-    <script src="{% static 'js/pay.js' %}"></script>
-  </body>
-</html>
+
+    <div class="pay__col">
+        <div class="pay__plans" role="group" aria-label="Выбор тарифа">
+            {% for item in plans %}
+                <a class="pay__plan-chip {% if item.code == plan.code %}is-active{% endif %}"
+                   href="{% url 'pay' %}?plan={{ item.code }}">
+                    <b>{{ item.name }}</b>
+                    <span>{{ item.price|floatformat:"-2" }} Br</span>
+                </a>
+            {% endfor %}
+        </div>
+
+        <form class="card pay__form" id="payment-form" method="post" action="{% url 'process_payment' %}" novalidate>
+            {% csrf_token %}
+            <h2 class="pay__title">Данные карты</h2>
+
+            {% if errors %}
+                <ul class="pay__errors">
+                    {% for error in errors %}<li>{{ error }}</li>{% endfor %}
+                </ul>
+            {% endif %}
+
+            <div class="field">
+                <label class="field__label" for="card-number">Номер карты</label>
+                <input class="input" type="text" id="card-number" name="card_number" inputmode="numeric"
+                       value="{{ card_mask }}" placeholder="1234 5678 9012 3456" autocomplete="cc-number" maxlength="19" required>
+            </div>
+
+            <div class="field">
+                <label class="field__label" for="card-name-input">Держатель карты</label>
+                <input class="input" type="text" id="card-name-input" name="card_name" value="{{ card_name }}" placeholder="IVAN IVANOV" autocomplete="cc-name" required>
+            </div>
+
+            <div class="pay__row">
+                <div class="field">
+                    <label class="field__label" for="validity-input">Срок действия</label>
+                    <input class="input" type="text" id="validity-input" name="validity" value="{{ validity }}" placeholder="MM/YY" autocomplete="cc-exp" maxlength="5" required>
+                </div>
+                <div class="field">
+                    <label class="field__label" for="cvv">CVV</label>
+                    <input class="input" type="password" id="cvv" name="cvv" placeholder="•••" inputmode="numeric" maxlength="3" autocomplete="cc-csc" required>
+                </div>
+            </div>
+
+            <input type="hidden" name="subscription" value="{{ plan.code }}">
+            <button class="btn btn--primary btn--full" type="submit">Оплатить {{ plan.price|floatformat:"-2" }} Br</button>
+            <p class="pay__secure">🔒 Демонстрационная оплата: реальные списания не производятся</p>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}<script src="{% static 'js/pay.js' %}"></script>{% endblock %}
+
+{% block styles %}
+<style>
+    .pay {
+        display: grid;
+        grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+        gap: 24px;
+        align-items: start;
+        max-width: 960px;
+        margin: 0 auto;
+    }
+    .pay__summary {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        padding: clamp(24px, 4vw, 40px);
+        border-radius: 28px;
+        background: linear-gradient(150deg, var(--navy), var(--navy-deep));
+        color: #fff;
+        box-shadow: var(--shadow);
+    }
+    .pay__plan {
+        font-family: var(--font-display);
+        font-size: 34px;
+        letter-spacing: 0.06em;
+        margin: 14px 0 6px;
+    }
+    .pay__price {
+        font-family: var(--font-display);
+        font-size: 44px;
+        white-space: nowrap;
+    }
+    .pay__price .currency {
+        font-family: var(--font-text);
+        font-size: 20px;
+        font-weight: 700;
+        letter-spacing: 0;
+        vertical-align: 0.12em;
+        margin-left: 2px;
+    }
+    .pay__price small {
+        font-family: var(--font-text);
+        font-size: 14px;
+        opacity: 0.65;
+    }
+    .pay__features {
+        border-top: 1px solid hsla(0, 0%, 100%, 0.18);
+        margin-top: 16px;
+        padding-top: 16px;
+        font-size: 14px;
+        line-height: 1.5;
+    }
+    .pay__features li { color: hsla(0, 0%, 100%, 0.85); }
+    .pay__note {
+        color: hsla(0, 0%, 100%, 0.72);
+        line-height: 1.65;
+        font-size: 14px;
+        margin: 16px 0 22px;
+    }
+    .pay__col {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+    .pay__plans {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+        gap: 10px;
+    }
+    .pay__plan-chip {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        padding: 12px 16px;
+        border-radius: var(--radius);
+        border: 1px solid var(--line);
+        background: #fff;
+        color: var(--ink);
+        text-decoration: none;
+        font-family: var(--font-ui);
+    }
+    .pay__plan-chip span { font-size: 13px; color: var(--muted); }
+    .pay__plan-chip.is-active {
+        border-color: var(--accent);
+        background: var(--accent-soft);
+    }
+    .pay__form {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+    .pay__title { font-size: 20px; }
+    .pay__errors {
+        margin: 0;
+        padding: 12px 16px 12px 34px;
+        border-radius: var(--radius-sm);
+        background: hsla(352, 70%, 52%, 0.08);
+        color: var(--danger);
+        font-size: 14px;
+    }
+    .pay__row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+    }
+    .pay__secure {
+        text-align: center;
+        font-size: 12px;
+        color: var(--muted);
+    }
+    @media (max-width: 760px) {
+        .pay { grid-template-columns: 1fr; }
+    }
+</style>
+{% endblock %}

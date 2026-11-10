@@ -1,0 +1,24 @@
+{% extends "base-auth.html" %}
+{% load static %}
+
+{% block title %}Подтверждение — Health Flow AI{% endblock %}
+{% block information %}Код отправлен на {{ contact }}{% endblock %}
+
+{% block main %}
+<form action="{% url 'confirm_registration' %}" method="post" class="auth__form">
+    {% csrf_token %}
+    <input type="hidden" name="choice" value="{{ choice }}">
+    <input type="hidden" name="contact" value="{{ contact }}">
+    <input class="input" type="text" id="confirmation_code" name="confirmation_code" placeholder="Код подтверждения"
+           inputmode="numeric" autocomplete="one-time-code" maxlength="6" required>
+    <button class="btn btn--dark btn--full" type="submit">Подтвердить</button>
+    <a class="btn btn--ghost btn--full" href="{% url 'reg_page' %}">Начать заново</a>
+</form>
+{% if code_shown %}
+<p class="auth__lead" style="font-family:var(--font-text);font-size:14px;color:var(--ink-soft)">
+    SMS не отправилось (режим разработки). Ваш код: <b>{{ code_shown }}</b>
+</p>
+{% endif %}
+{% if notice %}<p class="auth__lead" style="font-family:var(--font-text);font-size:14px;color:var(--ink-soft)">{{ notice }}</p>{% endif %}
+{% if error_message %}<p class="auth__error">{{ error_message }}</p>{% endif %}
+{% endblock %}

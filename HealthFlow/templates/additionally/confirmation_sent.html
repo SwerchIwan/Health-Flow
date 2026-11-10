@@ -1,29 +1,18 @@
 {% extends "base-auth.html" %}
 {% load static %}
 
-{% csrf_token %}
+{% block title %}Подтверждение — Health Flow AI{% endblock %}
+{% block information %}Код подтверждения{% endblock %}
 
 {% block main %}
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Confirmation Sent</title>
-</head>
-<body>
-    <h1>Сообщение</h1>
-    <p>Код был отправлен по номеру {{ phone|default:"email" }}.</p>
-
-    {% if phone %}
-        <form action="{% url 'confirm_phone_registration' %}" method="post">
-            {% csrf_token %}
-            <input type="hidden" name="phone" value="{{ phone }}">
-            <label for="confirmation_code">Код подтверждения:</label>
-            <input type="text" id="confirmation_code" name="confirmation_code" required>
-            <button type="submit">Отправить</button>
-        </form>
-    {% else %}
-        <p>Please check your email to confirm your registration.</p>
-    {% endif %}
-</body>
-</html>
+<p class="auth__lead" style="font-family:var(--font-text);font-size:15px;color:var(--ink-soft)">
+    Код отправлен на {{ contact }}.
+</p>
+<form action="{% url 'confirm_registration' %}" method="post" class="auth__form">
+    {% csrf_token %}
+    <input type="hidden" name="choice" value="{{ choice }}">
+    <input type="hidden" name="contact" value="{{ contact }}">
+    <input class="input" type="text" id="confirmation_code" name="confirmation_code" placeholder="Код подтверждения" required>
+    <button class="btn btn--dark btn--full" type="submit">Подтвердить</button>
+</form>
 {% endblock %}

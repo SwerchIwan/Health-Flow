@@ -1,136 +1,141 @@
-body{
-      overflow-y: hidden;
-      box-sizing: border-box;
-}
-
-
-:root {
-  --color-dark: black;
-  --color-primary: black;
-  --font-family: 'Yandex-bold';
-  --maxWidth: 1600px;
-}
-
-
-.__block-auth{
-    max-width: 376px;
-    max-height: 620px;
-    min-width: 300px;
-    min-height: 500px;
-    width: 400px;
-    height: 800px;
-
-}
-
-.__logo-png{
-    color: var(--color-dark);
-    width: 60px;
-    height: 60px;
-}
-
-.__logo-png{
-    margin: 0 auto;
-}
-
-.block-title{
-    margin-top: 15px;
-}
-
-.block-title p{
-    font-size: 25px;
-}
-
-.__logo-head-text{
-    font-size: 32px;
-}
-
-
-.tabs{
-    border: solid 2px #DBDBDB;
-    border-radius: 10px;
-}
-
-.elem-panel{
-    margin-top: 20px;
-}
-
-.__elem-panel input, .__elem-panel button{
-    margin-top: 20px;
-}
-
-.__elem-panel input {
-    border: solid 1px #DBDBDB; /* Make the initial border transparent */
-    border-radius: 10px;
-}
-
-.__elem-panel input:focus {
-    border-color: #333333; /* Change the border color when focused */
-}
-
-.button+.button{
-    margin-left: 0px;
-}
-
-.block-additionally{
-    margin-top: 25px;
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-}
-
-.title-additionally p{
-    font-size: 20px;
-}
-
-.__block-additionally{
-    display: flex;
-    justify-content: space-around;
-}
-
-.__block-additionally-elem{
-    margin-top: 0px;
-
-}
-
-.__block-additionally-elem .button{
+.auth-page {
+    min-height: 100vh;
     display: flex;
     align-items: center;
-    padding: 0xp;
-    border: 2px solid #000;
-    border-radius: 5px;
+    justify-content: center;
+    padding: 32px 16px;
+    background:
+        radial-gradient(800px 500px at 85% 10%, hsla(174, 72%, 48%, 0.28), transparent 60%),
+        radial-gradient(700px 500px at 10% 95%, hsla(210, 90%, 60%, 0.22), transparent 60%),
+        linear-gradient(150deg, var(--navy), var(--navy-deep));
 }
 
+.auth {
+    width: 100%;
+    max-width: 440px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+}
 
+.auth__panel {
+    width: 100%;
+    padding: clamp(24px, 5vw, 40px);
+    border-radius: 28px;
+    box-shadow: var(--shadow-lg);
+}
 
-.__block-additionally-elem .button img {
-    max-width: 30px; /* настроить размер изображения по желанию */
+.auth__logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--navy);
+}
+
+.auth__logo-img {
+    width: 56px;
+    height: 56px;
+    object-fit: contain;
+    border-radius: 16px;
+    background: var(--surface-alt);
+    padding: 6px;
+}
+
+.auth__logo-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.auth__logo-text .hf-logo__sub {
+    color: var(--muted);
+}
+
+.auth__lead {
+    margin-top: 20px;
+    font-family: var(--font-ui);
+    font-size: clamp(18px, 4vw, 22px);
+    line-height: 1.35;
+    color: var(--ink);
+}
+
+.auth__form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 22px;
+}
+
+.auth__form .input {
     display: block;
-    align-items: center;
 }
 
-.__block-additionally-elem .button p {
-    margin: 0;
+.auth__form .btn,
+.auth__form a.btn {
+    margin-top: 4px;
+}
+
+.auth__error {
+    min-height: 20px;
+    font-size: 13px;
+    color: var(--danger);
     text-align: center;
-    margin-left: 10px;
 }
 
-.title-additionally{
-     border: solid 2px #333333;
-     padding: 10px;
-     border-radius: 5px;
-
+.auth__foot {
+    color: hsla(0, 0%, 100%, 0.55);
+    font-size: 12px;
 }
 
-.conf-mes{
+.tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px;
+    padding: 4px;
+    border-radius: 999px;
+    background: var(--surface-alt);
+    margin-bottom: 4px;
+}
+
+.tabs a {
+    padding: 9px 12px;
+    border-radius: 999px;
     text-align: center;
-    color: #000;
+    font-family: var(--font-ui);
+    font-size: 14px;
+    color: var(--ink-soft);
+    transition: background-color .2s var(--ease), color .2s var(--ease);
 }
 
-.for-errors{
-    margin: 20px auto;
-    text-align: center
+.tabs a.is-active {
+    background: #fff;
+    color: var(--navy);
+    box-shadow: var(--shadow-sm);
 }
 
-#errors{
-    color: aqua;
+.conf-mes {
+    padding: 14px 16px;
+    border-radius: var(--radius);
+    background: var(--surface-alt);
+    font-size: 14px;
+    color: var(--ink-soft);
+    text-align: center;
+}
+
+.for-errors {
+    margin-top: 8px;
+    text-align: center;
+}
+
+#errors {
+    color: var(--danger);
+    font-size: 13px;
+}
+
+.auth h1 {
+    font-size: 22px;
+}
+
+.auth p {
+    line-height: 1.6;
 }

@@ -13,25 +13,40 @@ import os
 from pathlib import Path
 
 from django.urls import reverse_lazy
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv(BASE_DIR.parent / '.env')
+
+
+def env_bool(name, default=False):
+    return os.getenv(name, str(default)).strip().lower() in ('1', 'true', 'yes', 'on')
+
+
+def env_list(name, default=''):
+    return [item.strip() for item in os.getenv(name, default).split(',') if item.strip()]
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-8gr(0eo7ul&*ywo)p@zvs9=l70$q2@t27ohou%$colm4c8g_(!'
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'django-insecure-dev-only-change-me')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env_bool('DJANGO_DEBUG', True)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = env_list('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1')
+if DEBUG:
+    # раздача по локальной сети (LAN) для проверки с телефона
+    ALLOWED_HOSTS = ALLOWED_HOSTS + ['*']
+CSRF_TRUSTED_ORIGINS = env_list('DJANGO_CSRF_TRUSTED_ORIGINS')
 
 STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
 # Application definition
 
@@ -143,17 +158,30 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'users.User'
 
-EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_BACKEND = os.getenv('EMAIL_BACKEND', "django.core.mail.backends.smtp.EmailBackend")
 
-EMAIL_HOST = "smtp.yandex.ru"
-EMAIL_PORT = "465"
-EMAIL_HOST_USER = "kiselslaw@yandex.ru"
-EMAIL_HOST_PASSWORD = "zrsxlhsrfzwcupqf"
-EMAIL_USE_SSL = True
+EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp.yandex.ru')
+EMAIL_PORT = int(os.getenv('EMAIL_PORT', '465'))
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
+EMAIL_USE_SSL = env_bool('EMAIL_USE_SSL', True)
+EMAIL_USE_TLS = env_bool('EMAIL_USE_TLS', False)
+EMAIL_TIMEOUT = 15
 
-DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', EMAIL_HOST_USER)
 SERVER_EMAIL = EMAIL_HOST_USER
 EMAIL_ADMIN = EMAIL_HOST_USER
+
+SITE_URL = os.getenv('SITE_URL', '').rstrip('/')
+VERIFICATION_CODE_TTL = 15 * 60
+
+TWILIO_ACCOUNT_SID = os.getenv('TWILIO_ACCOUNT_SID', '')
+TWILIO_AUTH_TOKEN = os.getenv('TWILIO_AUTH_TOKEN', '')
+TWILIO_FROM_NUMBER = os.getenv('TWILIO_FROM_NUMBER', '')
+# В разработке код, который не удалось отправить по SMS, показывается на странице
+SMS_SHOW_CODE_ON_FAILURE = env_bool('SMS_SHOW_CODE_ON_FAILURE', DEBUG)
+
+LOGIN_URL = '/accounts/'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

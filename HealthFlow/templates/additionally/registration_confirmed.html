@@ -1,7 +1,12 @@
-<!-- aut-step-one.html -->
 {% extends "base-auth.html" %}
 {% load static %}
 
-{% block information %} Регистрация успешно завершена. Теперь вы можете войти в свой аккаунт.{% endblock %}\
+{% block title %}Регистрация — Health Flow AI{% endblock %}
+{% block information %}Регистрация успешно завершена{% endblock %}
 
-
+{% block main %}
+<p class="auth__lead" style="font-family:var(--font-text);font-size:15px;color:var(--ink-soft)">
+    Теперь вы можете войти в свой аккаунт.
+</p>
+<a class="btn btn--dark btn--full" href="{% url 'auth_page' %}" style="margin-top:22px">Войти</a>
+{% endblock %}

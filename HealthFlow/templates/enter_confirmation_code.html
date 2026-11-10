@@ -1,19 +1,14 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Confirm Registration</title>
-</head>
-<body>
-    <h1>Confirm Your Registration</h1>
-    <form method="POST">
-        {% csrf_token %}
-        <label for="confirmation_code">Confirmation Code:</label>
-        <input type="text" id="confirmation_code" name="confirmation_code" required>
-        <button type="submit">Confirm</button>
-    </form>
-    {% if error_message %}
-        <p style="color: red;">{{ error_message }}</p>
-    {% endif %}
-</body>
-</html>
+{% extends "base-auth.html" %}
+{% load static %}
+
+{% block title %}Подтверждение — Health Flow AI{% endblock %}
+{% block information %}Подтвердите регистрацию{% endblock %}
+
+{% block main %}
+<form method="POST" class="auth__form">
+    {% csrf_token %}
+    <input class="input" type="text" id="confirmation_code" name="confirmation_code" placeholder="Код подтверждения" required>
+    <button class="btn btn--dark btn--full" type="submit">Подтвердить</button>
+</form>
+{% if error_message %}<p class="auth__error">{{ error_message }}</p>{% endif %}
+{% endblock %}

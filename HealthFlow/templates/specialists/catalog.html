@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Каталог специалистов — Health Flow AI{% endblock %}
+
+{% block styles %}<link rel="stylesheet" href="{% static 'css/catalog.css' %}">{% endblock %}
+
+{% block content %}
+<div class="catalog">
+    <section class="catalog__head">
+        <div>
+            <span class="hf-eyebrow">Каталог</span>
+            <h1 class="catalog__title">Специалисты Health Flow</h1>
+            <p class="catalog__lead">
+                {{ total_published }} проверенных специалистов. Выберите направление и начните диалог в профиле.
+            </p>
+        </div>
+        <a class="btn btn--light" href="/profile/create_specialist/">Стать специалистом</a>
+    </section>
+
+    <form class="catalog__filters card" method="get" action="{% url 'specialists_catalog' %}">
+        <label class="search__field" for="catalog-q" style="flex:1">
+            <input class="input" type="search" id="catalog-q" name="q" value="{{ query }}"
+                   placeholder="Имя, город или ключевое слово">
+        </label>
+        <select class="input" name="specialty" id="catalog-specialty" aria-label="Специализация">
+            <option value="">Все направления</option>
+            {% for value, label in specialties %}
+                <option value="{{ value }}" {% if value == specialty %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+        <button class="btn btn--primary" type="submit">Найти</button>
+        {% if query or specialty %}
+            <a class="btn btn--ghost" href="{% url 'specialists_catalog' %}">Сбросить</a>
+        {% endif %}
+    </form>
+
+    {% if cards %}
+    <div class="catalog__grid">
+        {% for card in cards %}
+        <article class="spec-card card">
+            <div class="spec-card__top">
+                {% if card.specialist.user.photo %}
+                    <img class="spec-card__photo" src="{{ card.specialist.user.photo.url }}" alt="{{ card.specialist.name }}">
+                {% else %}
+                    <img class="spec-card__photo" src="{% static 'css/img/default-avatar.svg' %}" alt="">
+                {% endif %}
+                <div>
+                    <h2 class="spec-card__name">{{ card.specialist.name }}</h2>
+                    <span class="chip">{{ card.specialist.get_specialty_display }}</span>
+                </div>
+            </div>
+
+            <p class="spec-card__rating">
+                <span class="spec-card__stars" aria-label="Рейтинг {{ card.rating }} из 5">★</span>
+                <b>{{ card.rating }}</b>
+                <span class="spec-card__muted">({{ card.ratings_count }} {{ card.rating_word }})</span>
+                {% if card.reviews_count %}
+                    <a class="spec-card__reviews-link" href="{% url 'specialist_detail' card.specialist.id %}">
+                        {{ card.reviews_count }} {{ card.reviews_count|pluralize:"отзыв,отзыва,отзывов" }}
+                    </a>
+                {% endif %}
+            </p>
+
+            {% if card.specialist.about %}
+                <p class="spec-card__about">{{ card.specialist.about|truncatewords:28 }}</p>
+            {% endif %}
+
+            {% if card.reviews %}
+            <ul class="spec-card__reviews">
+                {% for review in card.reviews %}
+                    <li class="spec-review">
+                        <p class="spec-review__head">
+                            <b>{{ review.author.first_name|default:"Пациент" }}</b>
+                            <time datetime="{{ review.created_at|date:'Y-m-d' }}">{{ review.created_at|date:"d.m.Y" }}</time>
+                        </p>
+                        <p class="spec-review__text">{{ review.text|truncatewords:24 }}</p>
+                    </li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+
+            <ul class="spec-card__meta">
+                {% if card.specialist.experience_years %}
+                    <li>Опыт: {{ card.specialist.experience_years }} {{ card.specialist.experience_years|pluralize:"год,года,лет" }}</li>
+                {% endif %}
+                {% if card.specialist.city %}<li>{{ card.specialist.city }}</li>{% endif %}
+                {% if card.specialist.languages %}<li>{{ card.specialist.languages }}</li>{% endif %}
+            </ul>
+
+            <div class="spec-card__foot">
+                {% if card.specialist.price %}
+                    <div class="spec-card__price">{{ card.specialist.price|floatformat:"-2" }} <span>Br</span></div>
+                {% else %}
+                    <div class="spec-card__price spec-card__price--free">По подписке</div>
+                {% endif %}
+                {% if user.is_authenticated %}
+                    <a class="btn btn--primary btn--sm" href="/profile/?specialist={{ card.specialist.id }}">Написать</a>
+                {% else %}
+                    <a class="btn btn--dark btn--sm" href="/accounts/">Войти и написать</a>
+                {% endif %}
+            </div>
+        </article>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="card catalog__empty">
+        <h2>Ничего не нашлось</h2>
+        <p>Попробуйте изменить запрос или выбрать другое направление.</p>
+        <a class="btn btn--ghost" href="{% url 'specialists_catalog' %}">Сбросить фильтры</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

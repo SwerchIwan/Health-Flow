@@ -1,18 +1,49 @@
-<!-- templates/payment_success.html -->
-<!--<!DOCTYPE html>-->
-<!--<html lang="en">-->
-<!--  <head>-->
-<!--    <meta name="viewport" content="width=device-width, initial-scale=1.0" />-->
-<!--    <title>Успешная оплата</title>-->
-<!--  </head>-->
-<!--  <body>-->
-<!--    <h1>Оплата прошла успешно</h1>-->
-<!--    <p>Спасибо за вашу оплату. Ваша подписка была обновлена.</p>-->
-<!--  </body>-->
-<!--</html>-->
-
-<!-- aut-step-one.html -->
 {% extends "base-auth.html" %}
 {% load static %}
 
-{% block information %} Спасибо за вашу оплату. Ваша подписка была обновлена.{% endblock %}
+{% block title %}Подписка активирована — Health Flow AI{% endblock %}
+{% block information %}Оплата прошла успешно{% endblock %}
+
+{% block main %}
+<div class="pay-success">
+    <p class="auth__lead" style="font-family:var(--font-text);font-size:15px;color:var(--ink-soft)">
+        Тариф <b>{{ subscription }}</b> активирован{% if subscription_until %} до {{ subscription_until|date:"d.m.Y" }}{% endif %}.
+        {% if subscription_days_left %}Осталось {{ subscription_days_left }} дн.{% endif %}
+    </p>
+    {% if payment %}
+    <ul class="pay-success__details">
+        <li><span>Тариф</span><b>{{ payment.plan.name }}</b></li>
+        <li><span>Сумма</span><b>{{ payment.amount|floatformat:"-2" }} Br</b></li>
+        <li><span>Срок</span><b>{{ payment.duration_days }} дней</b></li>
+        <li><span>Карта</span><b>{{ payment.card_mask }}</b></li>
+        <li><span>Дата</span><b>{{ payment.created_at|date:"d.m.Y H:i" }}</b></li>
+    </ul>
+    {% endif %}
+    <a class="btn btn--dark btn--full" href="/profile/" style="margin-top:22px">Перейти в профиль</a>
+    <form method="post" action="{% url 'cancel_subscription' %}" style="margin-top:10px">
+        {% csrf_token %}
+        <button class="btn btn--ghost btn--full" type="submit">Отменить подписку</button>
+    </form>
+</div>
+{% endblock %}
+
+{% block additionally %}
+<style>
+    .pay-success__details {
+        list-style: none;
+        margin: 18px 0 0;
+        padding: 0;
+        border-top: 1px solid var(--line);
+    }
+    .pay-success__details li {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 10px 0;
+        border-bottom: 1px solid var(--line);
+        font-size: 14px;
+        color: var(--ink-soft);
+    }
+    .pay-success__details b { color: var(--ink); }
+</style>
+{% endblock %}

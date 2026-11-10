@@ -1,34 +1,25 @@
 {% extends "base-auth.html" %}
 {% load static %}
 
-{% block title %} Регистрация {% endblock %}
+{% block title %}Регистрация — Health Flow AI{% endblock %}
+{% block information %}Вы делаете правильный выбор{% endblock %}
 
-{% block information %} Вы делаете правильный выбор {% endblock %}
+{% block action %}action="/accounts/registration/"{% endblock %}
 
 {% block elem_panel %}
-<nav class="tabs is-full">
-    <a href="#" id="phone" onclick="changePlaceholder('phone')">Телефон</a>
-    <a href="#" id="email" onclick="changePlaceholder('email')">Почта</a>
+<nav class="tabs">
+    <a href="#" id="phone" class="is-active" onclick="changePlaceholder('phone');return false">Телефон</a>
+    <a href="#" id="email" onclick="changePlaceholder('email');return false">Почта</a>
 </nav>
-{% csrf_token %}
-<input type="hidden" name="choice" id="choice" value='phone'>
-<input type="text" id="inputField" name="inputField" placeholder="Введите номер телефона">
-<input type="password" name="password" id="password" placeholder="Введите пароль">
-<input type="password" name="password_confirm" id="password_confirm" placeholder="Повторите пароль">
+<input type="hidden" name="choice" id="choice" value="phone">
+<input class="input" type="text" id="inputField" name="inputField" placeholder="Введите номер телефона" autocomplete="username" required>
+<input class="input" type="password" name="password" id="password" placeholder="Введите пароль" autocomplete="new-password" minlength="8" required>
+<input class="input" type="password" name="password_confirm" id="password_confirm" placeholder="Повторите пароль" autocomplete="new-password" minlength="8" required>
 {% endblock %}
 
-{% block btn_func %}<button class="button dark is-full-width" type="submit">Далее</button>{% endblock %}
-
-{% block btn_func_two %} <a class="button outline is-full-width" type="button" href="{% url 'auth_page' %}">Войти в профиль</a> {% endblock %}
+{% block btn_func %}<button class="btn btn--dark btn--full" type="submit">Далее</button>{% endblock %}
+{% block btn_func_two %}<a class="btn btn--ghost btn--full" href="{% url 'auth_page' %}">Войти в профиль</a>{% endblock %}
 
 {% block additionally %}
-
-{% if error_message %}
-<div class="for-errors">
-    <p id="errors">{{ error_message }}</p>
-</div>
-{% endif %}
+{% if error_message %}<div class="for-errors"><p id="errors">{{ error_message }}</p></div>{% endif %}
 {% endblock %}
-
-{% block action %}action="{% url 'registration' %}"{% endblock %}
-

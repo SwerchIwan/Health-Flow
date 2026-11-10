@@ -1,24 +1,45 @@
 {% extends "base-auth.html" %}
 {% load static %}
 
-{% block title %} Авторизация {% endblock %}
-
-{% block information %} Остался один шаг до здоровья {% endblock %}
-
-{% block elem_panel %}
-<input type="password" id="inputField" name="inputField" placeholder="Введите пароль">
-{% endblock %}
-
-{% block btn_func %}<button class="button dark is-full-width" type="submit">Войти</button>{% endblock %}
-
-{% block btn_func_two %} <a class="button outline is-full-width" type="button" href="{% url 'reg_page' %}">Создать профиль</a> {% endblock %}
+{% block title %}Вход — Health Flow AI{% endblock %}
+{% block information %}Остался один шаг до здоровья{% endblock %}
 
 {% block action %}action="{% url 'login' %}"{% endblock %}
 
-{% block additionally %}
-{% if error_message %}
-<div class="for-errors">
-    <p id="errors">{{ error_message }}</p>
-</div>
+{% block elem_panel %}
+{% if code_sent %}
+    <input class="input" type="text" id="confirmation_code" name="confirmation_code" placeholder="Код из сообщения"
+           inputmode="numeric" autocomplete="one-time-code" maxlength="6" required>
+    <input type="hidden" name="action" value="code">
+    {% if code_shown %}
+    <p class="auth__lead" style="font-family:var(--font-text);font-size:14px;color:var(--ink-soft)">
+        Сообщение не отправилось (режим разработки). Ваш код: <b>{{ code_shown }}</b>
+    </p>
+    {% endif %}
+    {% if notice %}<p class="auth__lead" style="font-family:var(--font-text);font-size:14px;color:var(--ink-soft)">{{ notice }}</p>{% endif %}
+{% else %}
+    <input class="input" type="password" id="inputField" name="inputField" placeholder="Введите пароль" autocomplete="current-password">
+    <input type="hidden" name="action" value="password">
 {% endif %}
+{% endblock %}
+
+{% block btn_func %}
+{% if code_sent %}
+<button class="btn btn--dark btn--full" type="submit">Войти по коду</button>
+{% else %}
+<button class="btn btn--dark btn--full" type="submit">Войти</button>
+{% endif %}
+{% endblock %}
+
+{% block btn_func_two %}
+{% if code_sent %}
+<button class="btn btn--ghost btn--full" type="submit" name="action" value="send_code">Отправить код заново</button>
+{% else %}
+<button class="btn btn--ghost btn--full" type="submit" name="action" value="send_code">Войти по коду из сообщения</button>
+{% endif %}
+<a class="btn btn--ghost btn--full" href="{% url 'reg_page' %}">Создать профиль</a>
+{% endblock %}
+
+{% block additionally %}
+{% if error_message %}<div class="for-errors"><p id="errors">{{ error_message }}</p></div>{% endif %}
 {% endblock %}

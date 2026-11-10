@@ -1,71 +1,104 @@
 {% extends "base.html" %}
+{% load static %}
 
-{% block title %} HealthFlow-AI{% endblock %}
-
-{% block canvas %}<canvas></canvas>{% endblock %}
-
+{% block title %}Поддержка — Health Flow AI{% endblock %}
 
 {% block content %}
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-<script>
-    $(document).ready(function () {
-        $('form').submit(function (event) {
-            event.preventDefault(); // Предотвращаем стандартное поведение формы (перезагрузку страницы)
+<div class="support">
+    <div class="support__intro">
+        <span class="hf-eyebrow">Поддержка</span>
+        <h1 class="support__title">Чем мы можем помочь?</h1>
+        <p class="support__lead">
+            Задайте вопрос нашему AI-помощнику или напишите нам в Telegram-бот — мы всегда на связи.
+        </p>
+        <a class="btn btn--ghost" href="https://t.me/HealthFlow_bot" target="_blank" rel="noopener">Открыть Telegram-бот</a>
+    </div>
 
-            var formData = $(this).serialize(); // Получаем данные формы
-
-            $.ajax({
-                type: 'POST',
-                url: '{% url "support_page" %}',
-                data: formData,
-                success: function (data) {
-                    $('#chat-response').html(data.msg); // Обновляем содержимое элемента с ответом
-                }
-            });
-        });
-    });
-</script>
-
-<div class="intro">
-        <div class="__intro">
-
-            <div class="title-text is-full-width">
-                <div class="__title-text text-center">
-                    <div class="__title-text-main">
-                        <h1>Как же хорошо, что твоя мама не в курсе</h1>
-                    </div>
-                    <div class="__title-text-side">
-                        <p>И еще немного текста и вот еще чуть.</p>
-                    </div>
-                </div>
-            </div>
-            <div class="chat-ai ">
-                <div class="__chat-ai">
-                    <div class="block-chat-ai is-full-width">
-                        <form action="{% url 'support_page' %}" method="post">
-                            {% csrf_token %}
-                            <div class="input-stroke row is-center ">
-                                <div class="input-chat-ai"><input name="msg" type="text"></div>
-                                <div class="button-chat-ai">
-                                    <button type="submit" class="button icon-only">
-                                        <img src="https://icongr.am/feather/search.svg?size=24">
-                                    </button>
-                                </div>
-                            </div>
-                        </form>
-                        <p id="chat-response">{{ msg }}</p>
-
-
-                    </div>
-                </div>
-            </div>
-            <div class="change-color is-full-width">
-                <div class="__change-color text-center">
-                    <button href="" class="button outline ">B</button>
-                    <button href="" class="button outline ">W</button>
-                </div>
+    <div class="card support__chat">
+        <div class="support__chat-head">
+            <span class="support__dot"></span>
+            <span>Health Flow AI</span>
+        </div>
+        <div class="support__messages" id="chat-response">
+            <div class="support__bubble support__bubble--bot">
+                {{ msg|default:"Привет! Напишите ваш вопрос о здоровье." }}
             </div>
         </div>
+        <form class="support__form" method="post" action="{% url 'support_page' %}">
+            {% csrf_token %}
+            <input class="input" name="msg" type="text" placeholder="Ваш вопрос…" autocomplete="off">
+            <button class="btn btn--primary" type="submit">Спросить</button>
+        </form>
+    </div>
 </div>
+{% endblock %}
 
+{% block styles %}
+<style>
+    .support {
+        display: grid;
+        grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+        gap: 24px;
+        align-items: start;
+    }
+    .support__title {
+        font-size: clamp(28px, 3.4vw, 42px);
+        margin: 14px 0 16px;
+    }
+    .support__lead {
+        color: var(--ink-soft);
+        line-height: 1.7;
+        margin-bottom: 22px;
+    }
+    .support__chat {
+        display: flex;
+        flex-direction: column;
+        min-height: 420px;
+        gap: 16px;
+    }
+    .support__chat-head {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-family: var(--font-ui);
+        font-size: 15px;
+        padding-bottom: 14px;
+        border-bottom: 1px solid var(--line);
+    }
+    .support__dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: var(--accent);
+        box-shadow: 0 0 0 4px var(--accent-soft);
+    }
+    .support__messages {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        overflow-y: auto;
+        max-height: 420px;
+    }
+    .support__bubble {
+        max-width: 88%;
+        padding: 13px 16px;
+        border-radius: 16px;
+        font-size: 14px;
+        line-height: 1.6;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+    }
+    .support__bubble--bot {
+        background: var(--surface-alt);
+        border-bottom-left-radius: 6px;
+    }
+    .support__form {
+        display: flex;
+        gap: 10px;
+    }
+    @media (max-width: 860px) {
+        .support { grid-template-columns: 1fr; }
+    }
+</style>
 {% endblock %}

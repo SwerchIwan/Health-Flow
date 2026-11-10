@@ -1,88 +1,62 @@
 <!doctype html>
 {% load static %}
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <link rel="stylesheet" href="https://unpkg.com/chota@latest">
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
-    <link rel="stylesheet" href="{% static 'css/standart.css' %}">
+    <link rel="shortcut icon" href="{% static 'css/img/icon.ico' %}" sizes="32x32"/>
+    <title>{% block title %}Health Flow AI{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
     <link rel="stylesheet" href="{% static 'css/auth.css' %}">
-    <script src="{% static 'js/script.js' %}"></script>
-    <title> {% block title %} {% endblock %}</title>
     <script>
-                        function changePlaceholder(type) {
-                            const inputField = document.getElementById('inputField');
-                            const phoneBtn = document.getElementById('phone');
-                            const emailBtn = document.getElementById('email');
-                            if (type === 'phone') {
-                                inputField.placeholder = 'Введите номер телефона';
-                                phoneBtn.classList.add("active");
-                                emailBtn.classList.remove("active");
-                                document.getElementById('choice').value = type;
-                            } else if (type === 'email') {
-                                inputField.placeholder = 'Введите почту';
-                                emailBtn.classList.add("active");
-                                phoneBtn.classList.remove("active");
-                                document.getElementById('choice').value = type;
-                            }
-                        }
-                        function togglePasswordVisibility(fieldId) {
-                        var field = document.getElementById(fieldId);
-                        if (field.type === "password") {
-                            field.type = "text";
-                        } else {
-                            field.type = "password";
-                        }
-                    }
-
+        function changePlaceholder(type) {
+            const inputField = document.getElementById('inputField');
+            const phoneBtn = document.getElementById('phone');
+            const emailBtn = document.getElementById('email');
+            if (!inputField) return;
+            if (type === 'phone') {
+                inputField.placeholder = 'Введите номер телефона';
+                phoneBtn.classList.add('is-active');
+                emailBtn.classList.remove('is-active');
+                document.getElementById('choice').value = type;
+            } else if (type === 'email') {
+                inputField.placeholder = 'Введите почту';
+                emailBtn.classList.add('is-active');
+                phoneBtn.classList.remove('is-active');
+                document.getElementById('choice').value = type;
+            }
+        }
+        function togglePasswordVisibility(fieldId) {
+            var field = document.getElementById(fieldId);
+            field.type = field.type === "password" ? "text" : "password";
+        }
     </script>
 </head>
-<body>
-    <canvas  class="is-full-screen canvas"></canvas>
-    <div class="block-auth is-full-screen is-center ">
-        <div class="__block-auth">
-            <div class="__block-auth-elem text-center is-horizontal-align ">
-                <div class="header-logo">
-                    <div class="__logo-png">
-                        <a href='/'> <!-- Замените https://example.com на нужную вам ссылку -->
-                            <img src="{% static 'css/img/logo-dark.png' %}" alt="Logo">
-                        </a>
-                    </div>
-                    <div class="__logo-text">
-                        <div class="__logo-head-text">
-                            <p>HEALTH FLOW AI</p>
-                        </div>
-                        <div class="logo-min-text">
-                            The pulse of modern medicine
-                        </div>
-                    </div>
-                    </div>
-                </div>
-                <div class="block-title text-center">
-                    <p>{% block information %} {% endblock %}</p>
-                </div>
-                {% block main %}
-                <div class="elem-panel">
-                     <form {% block action %} {% endblock %} method="post">
-                             {% csrf_token %}
-                        <div class="__elem-panel">
-                            {% block elem_panel %}
+<body class="auth-page">
+<div class="auth">
+    <div class="auth__panel card">
+        <a class="auth__logo" href="/">
+            <img class="auth__logo-img" src="{% static 'css/img/logo-dark.png' %}" alt="Health Flow AI">
+            <span class="auth__logo-text">
+                <span class="hf-logo__title">HEALTH FLOW AI</span>
+                <span class="hf-logo__sub">The pulse of modern medicine</span>
+            </span>
+        </a>
+        <p class="auth__lead">{% block information %}{% endblock %}</p>
 
-                            {% endblock %}
-                            {% block btn_func %} {% endblock %}
-                            {% block btn_func_two %} {% endblock %}
-                            <div class="for-errors">
-                                <p id="errors"></p>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            {% endblock %}
-            {% block additionally %} {% endblock %}
-        </div>
+        {% block main %}
+        <form {% block action %}{% endblock %} method="post" class="auth__form">
+            {% csrf_token %}
+            {% block elem_panel %}{% endblock %}
+            {% block btn_func %}{% endblock %}
+            {% block btn_func_two %}{% endblock %}
+            <p class="auth__error" id="errors"></p>
+        </form>
+        {% endblock %}
+        {% block additionally %}{% endblock %}
     </div>
+    <p class="auth__foot">© {% now "Y" %} Health Flow AI</p>
+</div>
 </body>
 </html>

@@ -1,12 +1,23 @@
 from django.shortcuts import render, get_object_or_404, redirect
+from django.templatetags.static import static
 from django.http import JsonResponse
+from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from django.db.models import Q
+from users.notifications import notify_about_message
 from .AI import new_request
 from .models import Chat, Message, Specialist, Note, Blood, BMI, Pressure, Rating, SpecialistApplication
 import json
+
+
+def notify_chat_recipient(request, chat, content):
+    recipient = chat.user if chat.user_id != request.user.pk else chat.specialist.user
+    if recipient.pk == request.user.pk:
+        return
+    chat_url = request.build_absolute_uri(reverse('profile_page')) + f'#chat-{chat.id}'
+    notify_about_message(recipient, chat_url, content[:300])
 
 
 def create_specialist(request):
@@ -20,6 +31,7 @@ def create_specialist(request):
         first_name = request.POST.get('first_name')
         last_name = request.POST.get('last_name')
         contact = request.POST.get('contact')
+        specialization = request.POST.get('specialization') or 'other'
         additional_info = request.POST.get('additional_info')
         attached_file = request.FILES.get('attached_file')
 
@@ -29,6 +41,7 @@ def create_specialist(request):
             first_name=first_name,
             last_name=last_name,
             contact=contact,
+            specialization=specialization,
             additional_info=additional_info,
             attached_file=attached_file
         )
@@ -36,7 +49,9 @@ def create_specialist(request):
         return redirect(
             'profile_page')  # Страница, на которую перенаправляется пользователь после успешной отправки заявки
 
-    return render(request, 'profile/profile_specialist.html')
+    return render(request, 'profile/profile_specialist.html', {
+        'specialties': Specialist.SPECIALTY_CHOICES,
+    })
 
 
 @login_required
@@ -168,29 +183,47 @@ def profile_page(request):
     notes = Note.objects.filter(user=user)
     if user.is_superuser:
         return redirect('/admin/')
-    else:
-        return render(request, 'profile/profile.html', {
-            "name": user.first_name if user.first_name else "Пользователь",
-            "last_name": user.last_name,
-            "additional": user.email,
-            "avatar": user.photo.url if user.photo else 'https://avatars.mds.yandex.net/i?id=6f6125e91480fabbf7af426a0654d60c61c3f63e-12638015-images-thumbs&n=13',
-            "chats": chats,
-            "notes": notes,
-            "subscription": user.subscription,
-            "is_specialist": is_specialist  # Передаем флаг в контекст
-        })
+
+    active = user.subscription_is_active()
+    return render(request, 'profile/profile.html', {
+        "name": user.first_name if user.first_name else "Пользователь",
+        "last_name": user.last_name,
+        "additional": user.email,
+        "avatar": user.photo.url if user.photo else static('css/img/default-avatar.svg'),
+        "chats": chats,
+        "notes": notes.order_by('-date', '-id'),
+        "subscription": user.subscription if active else 'FREE',
+        "subscription_until": user.subscription_until if active else None,
+        "is_specialist": is_specialist  # Передаем флаг в контекст
+    })
 
 
 
-@csrf_exempt
+@require_POST
 def process_message(request):
-    if request.method == 'POST':
+    try:
         data = json.loads(request.body)
-        message = data.get('message')
-        response = new_request(message)
-        return JsonResponse({'response': response})
-    else:
-        return JsonResponse({'error': 'Only POST requests are allowed'})
+    except (json.JSONDecodeError, UnicodeDecodeError):
+        return JsonResponse({'error': 'Некорректный запрос.'}, status=400)
+
+    message = (data.get('message') or '').strip()
+    if not message:
+        return JsonResponse({'error': 'Сообщение не может быть пустым.'}, status=400)
+    if len(message) > 2000:
+        return JsonResponse({'error': 'Слишком длинное сообщение (максимум 2000 символов).'}, status=400)
+
+    try:
+        response = new_request(message, request.user.pk)
+    except Exception as e:
+        print("AI error:", str(e))
+        return JsonResponse(
+            {'error': 'Нейросеть сейчас недоступна. Попробуйте ещё раз через минуту.'},
+            status=503,
+        )
+
+    if not response:
+        return JsonResponse({'error': 'Нейросеть не вернула ответ. Попробуйте переформулировать запрос.'}, status=503)
+    return JsonResponse({'response': response})
 
 
 @login_required
@@ -211,8 +244,7 @@ def chat_detail(request, chat_id):
     else:
         other_user = chat.user
 
-    other_user_photo = other_user.photo.url if hasattr(other_user,
-                                                       'photo') and other_user.photo else 'https://avatars.mds.yandex.net/i?id=6f6125e91480fabbf7af426a0654d60c61c3f63e-12638015-images-thumbs&n=13'
+    other_user_photo = other_user.photo.url if other_user.photo else static('css/img/default-avatar.svg')
     other_user_contact = other_user.email if other_user.email else ''
 
     # Получаем текущий рейтинг пользователя для этого специалиста
@@ -235,6 +267,109 @@ def chat_detail(request, chat_id):
     })
 
 @login_required
+def my_notes(request):
+    notes = Note.objects.filter(user=request.user).order_by('-date', '-id')
+    return JsonResponse({'notes': [note_payload(note) for note in notes]})
+
+
+def _num(value, digits=2):
+    if value is None:
+        return None
+    value = float(value)
+    return int(value) if digits == 0 else round(value, digits)
+
+
+def note_payload(note):
+    blood = note.blood_data.first()
+    pressure = note.pressure_data.first()
+    bmi = note.bmi_data.first()
+    return {
+        'id': note.id,
+        'date': note.date.strftime('%d.%m.%Y'),
+        'text': note.additional_notes or '',
+        'file_name': (note.file.name.rsplit('/', 1)[-1] if note.file else ''),
+        'blood': {
+            'hemoglobin': _num(blood.hemoglobin) if blood else None,
+            'leukocytes': _num(blood.leukocytes) if blood else None,
+            'lymphocytes': _num(blood.lymphocytes) if blood else None,
+        } if blood else None,
+        'pressure': {
+            'systolic': pressure.systolic,
+            'diastolic': pressure.diastolic,
+            'pulse_rate': pressure.pulse_rate,
+        } if pressure else None,
+        'bmi': {
+            'height': _num(bmi.height),
+            'weight': _num(bmi.weight),
+        } if bmi else None,
+    }
+
+
+def note_message_text(note):
+    lines = [f"Заметка из профиля от {note.date.strftime('%d.%m.%Y')}"]
+    if note.additional_notes:
+        lines.append(note.additional_notes)
+    blood = note.blood_data.first()
+    if blood:
+        parts = []
+        if blood.hemoglobin:
+            parts.append(f"гемоглобин {_num(blood.hemoglobin)} г/л")
+        if blood.leukocytes:
+            parts.append(f"лейкоциты {_num(blood.leukocytes)} тыс/мкл")
+        if blood.lymphocytes:
+            parts.append(f"лимфоциты {_num(blood.lymphocytes)} %")
+        if parts:
+            lines.append("Кровь: " + ", ".join(parts) + ".")
+    pressure = note.pressure_data.first()
+    if pressure and (pressure.systolic or pressure.diastolic):
+        text = f"Давление: {pressure.systolic or '—'}/{pressure.diastolic or '—'} мм рт. ст."
+        if pressure.pulse_rate:
+            text += f", пульс {pressure.pulse_rate} уд/мин"
+        lines.append(text + ".")
+    bmi = note.bmi_data.first()
+    if bmi and (bmi.height or bmi.weight):
+        parts = []
+        if bmi.height:
+            parts.append(f"рост {_num(bmi.height)} см")
+        if bmi.weight:
+            parts.append(f"вес {_num(bmi.weight)} кг")
+        lines.append("Показатели: " + ", ".join(parts) + ".")
+    if note.file:
+        lines.append("Файл: " + note.file.name.rsplit('/', 1)[-1])
+    return "\n".join(lines)
+
+
+@login_required
+@require_POST
+def send_notes(request, chat_id):
+    chat = get_object_or_404(Chat, id=chat_id)
+    if request.user != chat.user:
+        return JsonResponse({'error': 'Отправлять свои заметки можно только в своём диалоге со специалистом.'}, status=403)
+
+    note_ids = request.POST.getlist('note_ids')
+    comment = (request.POST.get('comment') or '').strip()
+    if not note_ids and not comment:
+        return JsonResponse({'error': 'Выберите заметку или напишите комментарий.'}, status=400)
+    if len(note_ids) > 10:
+        return JsonResponse({'error': 'Можно отправить не больше 10 заметок за раз.'}, status=400)
+
+    notes = list(Note.objects.filter(user=request.user, id__in=note_ids).order_by('-date'))
+    if len(notes) != len(set(note_ids)):
+        return JsonResponse({'error': 'Часть заметок не найдена.'}, status=400)
+
+    texts = [note_message_text(note) for note in notes]
+    if comment:
+        texts.append(comment)
+    content = "\n\n".join(texts)
+
+    Message.objects.create(chat=chat, sender=request.user, content=content)
+    chat.last_message = content
+    chat.save()
+    notify_chat_recipient(request, chat, content)
+    return JsonResponse({'status': 'success'})
+
+
+@login_required
 @csrf_exempt
 def send_message(request):
     if request.method == 'POST':
@@ -247,6 +382,7 @@ def send_message(request):
         message = Message.objects.create(chat=chat, sender=request.user, content=content)
         chat.last_message = content
         chat.save()
+        notify_chat_recipient(request, chat, content)
         return JsonResponse(
             {'status': 'success', 'message': content, 'timestamp': message.timestamp.strftime('%Y-%m-%d %H:%M:%S')})
     else:
@@ -254,10 +390,66 @@ def send_message(request):
 
 
 @login_required
+@login_required
 def search_specialist(request):
     query = request.GET.get('q', '')
-    specialists = Specialist.objects.filter(Q(name__icontains=query)).values('id', 'name')
+    specialists = Specialist.objects.filter(
+        is_published=True, name__icontains=query).values('id', 'name')
     return JsonResponse({'specialists': list(specialists)})
+
+
+def specialists_catalog(request):
+    query = (request.GET.get('q') or '').strip()
+    specialty = request.GET.get('specialty') or ''
+
+    specialists = Specialist.objects.filter(is_published=True).select_related('user').prefetch_related(
+        'reviews__author', 'ratings')
+    if query:
+        specialists = specialists.filter(
+            Q(name__icontains=query) | Q(about__icontains=query) | Q(city__icontains=query)
+        )
+    if specialty:
+        specialists = specialists.filter(specialty=specialty)
+
+    cards = []
+    for specialist in specialists:
+        ratings_count = specialist.ratings.count()
+        if ratings_count % 10 == 1 and ratings_count % 100 != 11:
+            rating_word = 'оценка'
+        elif ratings_count % 10 in (2, 3, 4) and ratings_count % 100 not in (12, 13, 14):
+            rating_word = 'оценки'
+        else:
+            rating_word = 'оценок'
+        reviews = list(specialist.reviews.all()[:2])
+        cards.append({
+            'specialist': specialist,
+            'rating': round(specialist.average_rating(), 1),
+            'ratings_count': ratings_count,
+            'rating_word': rating_word,
+            'reviews': reviews,
+            'reviews_count': specialist.reviews.count(),
+        })
+
+    return render(request, 'specialists/catalog.html', {
+        'cards': cards,
+        'query': query,
+        'specialty': specialty,
+        'specialties': Specialist.SPECIALTY_CHOICES,
+        'total_published': Specialist.objects.filter(is_published=True).count(),
+    })
+
+
+def specialist_detail(request, specialist_id):
+    specialist = get_object_or_404(
+        Specialist.objects.select_related('user').prefetch_related('reviews__author'),
+        id=specialist_id, is_published=True,
+    )
+    return render(request, 'specialists/detail.html', {
+        'specialist': specialist,
+        'rating': round(specialist.average_rating(), 1),
+        'ratings_count': specialist.ratings.count(),
+        'reviews': specialist.reviews.all(),
+    })
 
 
 @login_required
@@ -271,7 +463,7 @@ def start_chat(request):
         'status': 'success',
         'chatId': chat.id,
         'specialist_name': specialist.name,
-        'specialist_photo': specialist.user.photo.url if specialist.user.photo else 'https://avatars.mds.yandex.net/i?id=6f6125e91480fabbf7af426a0654d60c61c3f63e-12638015-images-thumbs&n=13'
+        'specialist_photo': specialist.user.photo.url if specialist.user.photo else static('css/img/default-avatar.svg')
     })
 
 @login_required

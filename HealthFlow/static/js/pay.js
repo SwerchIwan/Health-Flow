@@ -1,97 +1,42 @@
-const cardNumber = document.getElementById("card-number");
-const cardHolderName = document.getElementById("card-holder-name");
-const cardNameInput = document.getElementById("card-name-input");
-const displayValidity = document.getElementById("validity");
-const validityInput = document.getElementById("validity-input");
-const cardNumberDisplay = document.querySelectorAll(".card-number-display");
-const cvvInput = document.getElementById("cvv");
-const cvvDisplay = document.getElementById("cvv-display");
-let currentSpanIndex = 0;
-cardNumber.addEventListener("input", () => {
-  const inputNumber = cardNumber.value.replace(/\D/g, "");
-  cardNumber.value = cardNumber.value.slice(0, 16).replace(/\D/g, "");
-  for (let i = 0; i < cardNumberDisplay.length; i++) {
-    if (i < inputNumber.length) {
-      cardNumberDisplay[i].textContent = inputNumber[i];
-    } else {
-      cardNumberDisplay[i].textContent = "_";
-    }
-  }
+document.addEventListener('DOMContentLoaded', function () {
+    const form = document.getElementById('payment-form');
+    if (!form) return;
 
-  if (inputNumber.length <= cardNumberDisplay.length) {
-    currentSpanIndex = inputNumber.length;
-  } else {
-    currentSpanIndex = cardNumberDisplay.length;
-  }
-});
+    const cardNumber = document.getElementById('card-number');
+    const cardName = document.getElementById('card-name-input');
+    const validity = document.getElementById('validity-input');
+    const cvv = document.getElementById('cvv');
 
-cardNameInput.addEventListener("input", () => {
-  if (cardNameInput.value.length < 1) {
-    cardHolderName.innerText = "Ваше имя здесь";
-  } else if (cardNameInput.value.length > 30) {
-    cardNameInput.value = cardNameInput.value.slice(0, 30);
-  } else {
-    cardHolderName.innerText = cardNameInput.value;
-  }
-});
+    cardNumber.addEventListener('input', function () {
+        const digits = cardNumber.value.replace(/\D/g, '').slice(0, 16);
+        cardNumber.value = digits.replace(/(\d{4})(?=\d)/g, '$1 ');
+    });
 
-validityInput.addEventListener("input", () => {
-  const inputString = validityInput.value;
-  if (inputString.length < 1) {
-    displayValidity.innerText = "06/28";
-    return false;
-  }
-  const parts = inputString.split("-");
-  const year = parts[0].slice(2);
-  const month = parts[1];
+    validity.addEventListener('input', function () {
+        const digits = validity.value.replace(/\D/g, '').slice(0, 4);
+        validity.value = digits.length > 2 ? digits.slice(0, 2) + '/' + digits.slice(2) : digits;
+    });
 
-  //Final formatted string
-  const formattedString = `${month}/${year}`;
-  displayValidity.innerText = formattedString;
-});
+    cvv.addEventListener('input', function () {
+        cvv.value = cvv.value.replace(/\D/g, '').slice(0, 3);
+    });
 
-//cvv
-cvvInput.addEventListener("input", () => {
-  const userInput = cvvInput.value;
-  const sanitizedInput = userInput.slice(0, 3);
-  const numericInput = sanitizedInput.replace(/\D/g, "");
-  cvvInput.value = numericInput;
-  cvvDisplay.innerText = numericInput;
-});
+    form.addEventListener('submit', function (event) {
+        const numberOk = cardNumber.value.replace(/\D/g, '').length === 16;
+        const validOk = /^\d{2}\/\d{2}$/.test(validity.value);
+        const cvvOk = cvv.value.length === 3;
 
-//Flip
-cvvInput.addEventListener("click", () => {
-  document.getElementById("card").style.transform = "rotateY(180deg)";
-});
-//Reflip card
-document.addEventListener("click", () => {
-  if (document.activeElement.id != "cvv") {
-    document.getElementById("card").style.transform = "rotateY(0deg)";
-  }
-});
-
-window.onload = () => {
-  cvvInput.value = "";
-  validityInput.value = "";
-  cardNameInput.value = "";
-  cardNumber.value = "";
-};
-
-      document.getElementById('payment-form').addEventListener('submit', function (event) {
-        // Prevent default form submission
-        event.preventDefault();
-
-        // Get form values
-        const cardNumber = document.getElementById('card-number').value;
-        const cardName = document.getElementById('card-name-input').value;
-        const validity = document.getElementById('validity-input').value;
-        const cvv = document.getElementById('cvv').value;
-
-        // Check if all fields are filled
-        if (cardNumber && cardName && validity && cvv) {
-          // Submit the form
-          event.target.submit();
-        } else {
-          alert('Пожалуйста, заполните все поля.');
+        if (!numberOk || !cardName.value.trim() || !validOk || !cvvOk) {
+            event.preventDefault();
+            let errorBox = document.querySelector('.pay__errors');
+            if (!errorBox) {
+                errorBox = document.createElement('ul');
+                errorBox.className = 'pay__errors';
+                form.querySelector('.pay__title').after(errorBox);
+            }
+            const item = document.createElement('li');
+            item.textContent = 'Пожалуйста, проверьте данные карты.';
+            errorBox.replaceChildren(item);
         }
-      });
+    });
+});

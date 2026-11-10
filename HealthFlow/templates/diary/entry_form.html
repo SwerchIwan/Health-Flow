@@ -1,17 +1,89 @@
-<!-- diary/templates/diary/entry_form.html -->
+{% extends "base.html" %}
+{% load static %}
 
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Add New Entry</title>
-</head>
-<body>
-    <h1>Add New Entry</h1>
-    <form method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Save</button>
-    </form>
-    <a href="{% url 'entry_list' %}">Back to diary</a>
-</body>
-</html>
+{% block title %}Новая запись — Health Flow AI{% endblock %}
+
+{% block content %}
+<form class="card diary-form" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <span class="hf-eyebrow">Дневник</span>
+    <h1 class="hf-section-title" style="margin:12px 0 22px">Новая запись</h1>
+    {% for field in form %}
+        <div class="field">
+            <label class="field__label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {% if field.name == 'file' %}
+                <div class="file-field" id="fileField">
+                    {{ field }}
+                    <button type="button" class="btn btn--ghost btn--sm" onclick="document.getElementById('{{ field.id_for_label }}').click()">Выбрать файл</button>
+                    <span class="file-field__name" id="fileName">Файл не выбран</span>
+                </div>
+            {% else %}
+                {{ field }}
+            {% endif %}
+        </div>
+    {% endfor %}
+    <div class="diary-form__actions">
+        <a class="btn btn--ghost" href="{% url 'entry_list' %}">К дневнику</a>
+        <button class="btn btn--primary" type="submit">Сохранить</button>
+    </div>
+</form>
+{% endblock %}
+
+{% block styles %}
+<style>
+    .diary-form {
+        max-width: 640px;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+    .diary-form input[type="text"],
+    .diary-form textarea,
+    .diary-form select {
+        width: 100%;
+        padding: 13px 16px;
+        border-radius: var(--radius-sm);
+        border: 1.5px solid var(--line);
+        background: #fff;
+        font-family: var(--font-text);
+        font-size: 15px;
+    }
+    .file-field {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        flex-wrap: wrap;
+        padding: 12px 14px;
+        border-radius: var(--radius-sm);
+        border: 1.5px dashed var(--line);
+        background: var(--surface-alt);
+    }
+    .file-field input[type="file"] { display: none; }
+    .file-field__name {
+        font-size: 13px;
+        color: var(--muted);
+        overflow-wrap: anywhere;
+    }
+    .diary-form textarea { min-height: 160px; resize: vertical; }
+    .diary-form .errorlist { color: var(--danger); font-size: 13px; }
+    .diary-form__actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        margin-top: 8px;
+    }
+    @media (max-width: 520px) {
+        .diary-form__actions .btn { flex: 1; }
+    }
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.getElementById('{{ form.file.id_for_label }}').addEventListener('change', function () {
+    var name = document.getElementById('fileName');
+    name.textContent = this.files.length ? this.files[0].name : 'Файл не выбран';
+});
+</script>
+{% endblock %}

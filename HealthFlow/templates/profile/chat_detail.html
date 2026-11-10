@@ -2,7 +2,11 @@
 <div class="__elem-chat-block">
     <div class="__elem-chat-block-info">
         <div class="block-avatar-message">
-            <img src="{{ chat.specialist.user.profile.photo.url if chat.specialist.user.profile.photo else 'https://avatars.mds.yandex.net/i?id=53e240924940d24b5cad00e9ec06294b-4834967-images-thumbs&n=13'}}" alt="">
+            {% if chat.specialist.user.photo %}
+                <img src="{{ chat.specialist.user.photo.url }}" alt="{{ chat.specialist.name }}">
+            {% else %}
+                <img src="/static/css/img/default-avatar.svg" alt="">
+            {% endif %}
         </div>
         <div class="__block-message">
             <div class="block-nickname">{{ chat.specialist.name }}</div>
