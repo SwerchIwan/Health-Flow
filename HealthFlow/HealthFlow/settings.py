@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 import os
 from pathlib import Path
+from urllib.parse import urlparse
 
 from django.urls import reverse_lazy
 from dotenv import load_dotenv
@@ -42,6 +43,17 @@ if DEBUG:
     # раздача по локальной сети (LAN) для проверки с телефона
     ALLOWED_HOSTS = ALLOWED_HOSTS + ['*']
 CSRF_TRUSTED_ORIGINS = env_list('DJANGO_CSRF_TRUSTED_ORIGINS')
+
+# Публичный адрес туннеля (cloudflared и т.п.): домен в Host и Origin запросов
+PUBLIC_URL = os.getenv('PUBLIC_URL', '').rstrip('/')
+if PUBLIC_URL:
+    _public_host = urlparse(PUBLIC_URL).hostname
+    if _public_host and _public_host not in ALLOWED_HOSTS:
+        ALLOWED_HOSTS.append(_public_host)
+    if PUBLIC_URL not in CSRF_TRUSTED_ORIGINS:
+        CSRF_TRUSTED_ORIGINS.append(PUBLIC_URL)
+USE_X_FORWARDED_HOST = True
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 STATICFILES_DIRS = [
     BASE_DIR / "static",

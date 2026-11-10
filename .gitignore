@@ -9,3 +9,5 @@ __pycache__/
 staticfiles/
 .qoder/
 vibe_images/
+
+lan_qr.png
