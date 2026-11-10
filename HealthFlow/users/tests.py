@@ -78,6 +78,33 @@ class AuthFlowTests(TestCase):
         self.assertEqual(self.client.get('/profile/').status_code, 302)
 
 
+class CacheConfigTests(TestCase):
+    def _load_settings_cache(self, redis_url):
+        import importlib
+        import os
+        from unittest import mock
+
+        from django.conf import settings as django_settings
+        from HealthFlow import settings as project_settings
+
+        with mock.patch.dict(os.environ, {'REDIS_URL': redis_url}):
+            module = importlib.reload(project_settings)
+        try:
+            return module.CACHES['default']
+        finally:
+            importlib.reload(project_settings)
+            self.assertIn('default', django_settings.CACHES)
+
+    def test_redis_backend_when_url_set(self):
+        config = self._load_settings_cache('redis://redis:6379/0')
+        self.assertEqual(config['BACKEND'], 'django.core.cache.backends.redis.RedisCache')
+        self.assertEqual(config['LOCATION'], 'redis://redis:6379/0')
+
+    def test_locmem_backend_without_url(self):
+        config = self._load_settings_cache('')
+        self.assertEqual(config['BACKEND'], 'django.core.cache.backends.locmem.LocMemCache')
+
+
 class PaymentFlowTests(TestCase):
     @classmethod
     def setUpTestData(cls):

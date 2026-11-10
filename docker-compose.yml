@@ -8,6 +8,11 @@ services:
     entrypoint: ["/app/docker/entrypoint.sh"]
     command: ["gunicorn", "HealthFlow.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "3", "--access-logfile", "-"]
     env_file: .env
+    environment:
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+    depends_on:
+      redis:
+        condition: service_healthy
     volumes:
       - ./HealthFlow/db.sqlite3:/app/HealthFlow/db.sqlite3
       - ./HealthFlow/media:/app/HealthFlow/media
@@ -25,10 +30,22 @@ services:
     image: healthflow-web:latest
     restart: unless-stopped
     env_file: .env
+    environment:
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
     command: ["python", "tg.py"]
     depends_on:
       web:
         condition: service_healthy
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   nginx:
     image: nginx:1.27-alpine

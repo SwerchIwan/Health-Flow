@@ -175,6 +175,21 @@ EMAIL_ADMIN = EMAIL_HOST_USER
 SITE_URL = os.getenv('SITE_URL', '').rstrip('/')
 VERIFICATION_CODE_TTL = 15 * 60
 
+# Коды подтверждения должны быть общими для всех воркеров gunicorn,
+# поэтому в продакшене нужен Redis. Без REDIS_URL — локальный кеш процесса.
+REDIS_URL = os.getenv('REDIS_URL', '').strip()
+if REDIS_URL:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+            'LOCATION': REDIS_URL,
+        }
+    }
+else:
+    CACHES = {
+        'default': {'BACKEND': 'django.core.cache.backends.locmem.LocMemCache'}
+    }
+
 TWILIO_ACCOUNT_SID = os.getenv('TWILIO_ACCOUNT_SID', '')
 TWILIO_AUTH_TOKEN = os.getenv('TWILIO_AUTH_TOKEN', '')
 TWILIO_FROM_NUMBER = os.getenv('TWILIO_FROM_NUMBER', '')
