@@ -2,7 +2,6 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.templatetags.static import static
 from django.http import JsonResponse
 from django.urls import reverse
-from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from django.db.models import Q
@@ -94,7 +93,6 @@ class BMIData:
 from django.http import JsonResponse
 
 @login_required
-@csrf_exempt
 def add_note(request):
     if request.method == 'POST':
         date = request.POST.get('date')
@@ -370,7 +368,6 @@ def send_notes(request, chat_id):
 
 
 @login_required
-@csrf_exempt
 def send_message(request):
     if request.method == 'POST':
         chat_id = request.POST.get('chat_id')
@@ -453,7 +450,6 @@ def specialist_detail(request, specialist_id):
 
 
 @login_required
-@csrf_exempt
 @require_POST
 def start_chat(request):
     specialist_id = request.POST.get('specialist_id')
@@ -496,7 +492,6 @@ def get_note_details(request, note_id):
     return JsonResponse(note_details)
 
 @login_required
-@csrf_exempt
 @require_POST
 def set_rating(request):
     try:
@@ -522,7 +517,6 @@ def set_rating(request):
 
 
 @login_required
-@csrf_exempt
 def delete_chat(request, chat_id):
     if request.method == 'POST':
         chat = get_object_or_404(Chat, id=chat_id)

@@ -2,7 +2,7 @@ from datetime import date, timedelta
 from decimal import Decimal
 
 from django.core import mail
-from django.test import TestCase
+from django.test import Client, TestCase
 from django.urls import reverse
 
 from profile_user.models import (BMI, Blood, Chat, Message, Note, Pressure, Rating,
@@ -11,6 +11,14 @@ from users.models import User
 
 
 class SiteFlowTests(TestCase):
+    def _post(self, username, url, data=None):
+        # Форма входа гарантированно выставляет CSRF-cookie; тестовый клиент
+        # сам токен не отправляет, поэтому передаём его заголовком.
+        self.client.login(username=username, password='Passw0rd!2026')
+        self.client.get('/accounts/')
+        token = self.client.cookies['csrftoken'].value
+        return self.client.post(url, data or {}, HTTP_X_CSRFTOKEN=token)
+
     @classmethod
     def setUpTestData(cls):
         cls.patient = User.objects.create_user(
@@ -66,8 +74,7 @@ class SiteFlowTests(TestCase):
         self.assertEqual(len(notes), 1)
 
     def test_add_note_creates_metrics(self):
-        self.client.login(username='t_patient', password='Passw0rd!2026')
-        response = self.client.post('/profile/add_note/', {
+        response = self._post('t_patient', '/profile/add_note/', {
             'date': date.today().isoformat(),
             'additional_notes': 'Хорошо себя чувствую',
             'blood[]': ['138', '6.5', '31'],
@@ -81,8 +88,7 @@ class SiteFlowTests(TestCase):
         self.assertEqual(float(note.bmi_data.first().weight), 71)
 
     def test_update_profile(self):
-        self.client.login(username='t_patient', password='Passw0rd!2026')
-        response = self.client.post('/profile/update_profile/', {
+        response = self._post('t_patient', '/profile/update_profile/', {
             'name': 'Новое', 'last_name': 'Имя',
         })
         self.assertIn(response.status_code, (200, 302))
@@ -96,44 +102,47 @@ class SiteFlowTests(TestCase):
         return chat
 
     def test_start_chat(self):
-        self.client.login(username='t_patient', password='Passw0rd!2026')
-        data = self.client.post('/profile/start_chat/', {'specialist_id': self.specialist.id}).json()
+        data = self._post('t_patient', '/profile/start_chat/', {'specialist_id': self.specialist.id}).json()
         self.assertEqual(data['status'], 'success')
-        again = self.client.post('/profile/start_chat/', {'specialist_id': self.specialist.id}).json()
+        again = self._post('t_patient', '/profile/start_chat/', {'specialist_id': self.specialist.id}).json()
         self.assertEqual(again['chatId'], data['chatId'])
         self.assertEqual(Chat.objects.count(), 1)
 
     def test_send_message_and_detail(self):
         chat = self._make_chat()
-        self.client.login(username='t_patient', password='Passw0rd!2026')
-        response = self.client.post('/profile/send_message/', {'chat_id': chat.id, 'message': 'Как дела?'})
+        response = self._post('t_patient', '/profile/send_message/', {'chat_id': chat.id, 'message': 'Как дела?'})
         self.assertEqual(response.json()['status'], 'success')
         detail = self.client.get(f'/profile/chat_detail/{chat.id}/').json()
         self.assertEqual(len(detail['messages']), 2)
 
     def test_delete_chat_by_participants(self):
         chat = self._make_chat()
-        self.client.login(username='t_patient', password='Passw0rd!2026')
-        self.assertEqual(self.client.post(f'/profile/delete_chat/{chat.id}/').json()['status'], 'success')
+        self._post('t_patient', f'/profile/delete_chat/{chat.id}/')
         self.assertFalse(Chat.objects.filter(id=chat.id).exists())
 
         chat = self._make_chat()
-        self.client.login(username='t_spec', password='Passw0rd!2026')
-        self.assertEqual(self.client.post(f'/profile/delete_chat/{chat.id}/').json()['status'], 'success')
+        self._post('t_spec', f'/profile/delete_chat/{chat.id}/')
+        self.assertFalse(Chat.objects.filter(id=chat.id).exists())
 
     def test_delete_chat_forbidden_for_stranger(self):
         chat = self._make_chat()
-        stranger = User.objects.create_user(username='t_stranger', password='Passw0rd!2026')
-        self.client.login(username='t_stranger', password='Passw0rd!2026')
-        response = self.client.post(f'/profile/delete_chat/{chat.id}/')
+        User.objects.create_user(username='t_stranger', password='Passw0rd!2026')
+        response = self._post('t_stranger', f'/profile/delete_chat/{chat.id}/')
+        self.assertEqual(response.status_code, 403)
+        self.assertTrue(Chat.objects.filter(id=chat.id).exists())
+
+    def test_delete_chat_requires_csrf(self):
+        chat = self._make_chat()
+        client = Client(enforce_csrf_checks=True)
+        client.login(username='t_patient', password='Passw0rd!2026')
+        response = client.post(f'/profile/delete_chat/{chat.id}/')
         self.assertEqual(response.status_code, 403)
         self.assertTrue(Chat.objects.filter(id=chat.id).exists())
 
     def test_send_notes_to_chat(self):
         chat = self._make_chat()
         note = Note.objects.create(user=self.patient, date=date.today(), additional_notes='Давление 130/85')
-        self.client.login(username='t_patient', password='Passw0rd!2026')
-        response = self.client.post(f'/profile/send_notes/{chat.id}/', {
+        response = self._post('t_patient', f'/profile/send_notes/{chat.id}/', {
             'note_ids': [note.id], 'comment': 'Посмотрите, пожалуйста',
         })
         self.assertEqual(response.json()['status'], 'success')
@@ -143,8 +152,7 @@ class SiteFlowTests(TestCase):
         chat = self._make_chat()
         other = User.objects.create_user(username='t_other', password='Passw0rd!2026')
         foreign = Note.objects.create(user=other, date=date.today(), additional_notes='Чужая')
-        self.client.login(username='t_patient', password='Passw0rd!2026')
-        response = self.client.post(f'/profile/send_notes/{chat.id}/', {'note_ids': [foreign.id]})
+        response = self._post('t_patient', f'/profile/send_notes/{chat.id}/', {'note_ids': [foreign.id]})
         self.assertNotEqual(response.json().get('status'), 'success')
         self.assertFalse(chat.messages.filter(content__contains='Чужая').exists())
 
@@ -158,8 +166,7 @@ class SiteFlowTests(TestCase):
     def test_set_rating_recalculates_average(self):
         Rating.objects.create(specialist=self.specialist, user=User.objects.create_user(
             username='t_r1', password='Passw0rd!2026'), rating=4)
-        self.client.login(username='t_patient', password='Passw0rd!2026')
-        data = self.client.post('/profile/set_rating/', {
+        data = self._post('t_patient', '/profile/set_rating/', {
             'specialist_contact': self.spec_user.email, 'rating': 2,
         }).json()
         self.assertEqual(data['status'], 'success')
@@ -183,7 +190,7 @@ class SiteFlowTests(TestCase):
         self.assertEqual(self.client.get(reverse('pay')).status_code, 200)
         from subscription.models import Plan
         plan = Plan.objects.create(code='TEST', name='Тест', price=Decimal('10'), duration_days=30)
-        response = self.client.post(reverse('process_payment'), {
+        response = self._post('t_patient', reverse('process_payment'), {
             'subscription': plan.code, 'card_number': '1234 5678 9012 3456',
             'card_name': 'TEST USER', 'validity': '12/30', 'cvv': '123',
         })
@@ -199,7 +206,7 @@ class SiteFlowTests(TestCase):
         User.objects.create_user(username='t_applicant', password='Passw0rd!2026', email='app@example.com')
         self.client.login(username='t_applicant', password='Passw0rd!2026')
         self.assertEqual(self.client.get('/profile/create_specialist/').status_code, 200)
-        self.client.post('/profile/create_specialist/', {
+        self._post('t_applicant', '/profile/create_specialist/', {
             'first_name': 'Иван', 'last_name': 'Петров', 'contact': 'test@example.com',
             'specialization': 'therapist', 'additional_info': 'Опыт 8 лет',
         })

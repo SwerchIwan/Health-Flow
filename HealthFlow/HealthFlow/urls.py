@@ -1,7 +1,6 @@
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
-from django.views.decorators.csrf import csrf_exempt
 
 from HealthFlow import settings
 from home.views import index_page, window_page
@@ -35,7 +34,7 @@ urlpatterns = [
     path('profile/send_notes/<int:chat_id>/', send_notes, name='send_notes'),
     path('profile/set_rating/', set_rating, name='set_rating'),
     path('profile/create_specialist/', create_specialist, name='create_specialist'),
-    path('profile/update_profile/', csrf_exempt(update_profile), name='update-profile'),
+    path('profile/update_profile/', update_profile, name='update-profile'),
     path('profile/add_note/', add_note, name='add-note'),
     path('search_specialist/', search_specialist, name='search_specialist'),
     path('profile/start_chat/', start_chat, name='start_chat'),
