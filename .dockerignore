@@ -1,0 +1,12 @@
+2.git
+.gitignore
+.venv
+.idea
+.qoder
+.env
+.env.example
+**/__pycache__
+**/*.py[cod]
+HealthFlow/db.sqlite3
+HealthFlow/account.session
+HealthFlow/staticfiles
