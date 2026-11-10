@@ -23,11 +23,11 @@ RUN apt-get update \
 
 COPY --from=builder /opt/venv /opt/venv
 
-WORKDIR /app
-COPY --chown=app:app . .
+WORKDIR /app/HealthFlow
+COPY --chown=app:app . /app
 
-RUN mkdir -p /app/staticfiles /app/media \
-    && chown -R app:app /app/staticfiles /app/media
+RUN mkdir -p /app/HealthFlow/staticfiles /app/HealthFlow/media \
+    && chown -R app:app /app/HealthFlow/staticfiles /app/HealthFlow/media
 
 USER app
 

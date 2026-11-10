@@ -3,10 +3,12 @@ from g4f.gui import run_gui
 import g4f
 from g4f.client import Client
 import asyncio
+import sys
 import warnings
 
 # Установить политику цикла событий WindowsSelectorEventLoopPolicy
-asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+if sys.platform == "win32":
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 # Отключить предупреждение о Proactor event loop
 warnings.filterwarnings("ignore", category=RuntimeWarning, message=".*Proactor event loop.*")

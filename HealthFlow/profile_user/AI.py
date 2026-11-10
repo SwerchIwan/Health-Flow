@@ -1,9 +1,11 @@
 import asyncio
+import sys
 import warnings
 
 import g4f
 
-asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+if sys.platform == "win32":
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 warnings.filterwarnings("ignore", category=RuntimeWarning, message=".*Proactor event loop.*")
 
 SYSTEM_PROMPT = (
