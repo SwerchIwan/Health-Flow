@@ -25,15 +25,20 @@ def normalize_phone(raw):
 
 
 def send_email(to, subject, template, context, text_body=''):
+    """Возвращает (ok, error): при сбое SMTP причина пишется в лог сервиса."""
     try:
-        html_message = render_to_string(template, context)
         message = EmailMultiAlternatives(subject, text_body, settings.DEFAULT_FROM_EMAIL, [to])
-        message.attach_alternative(html_message, 'text/html')
+        if template:
+            message.attach_alternative(render_to_string(template, context), 'text/html')
         message.send()
-        return True
-    except Exception:
+        return True, ''
+    except Exception as ex:
         logger.exception('Не удалось отправить письмо на %s', to)
-        return False
+        return False, f'{type(ex).__name__}: {ex}'
+
+
+def send_text_email(to, subject, text):
+    return send_email(to, subject, None, {}, text_body=text)
 
 
 def send_email_code(to, code):
@@ -66,8 +71,7 @@ def send_sms(to, text):
 def send_verification_code(choice, email, phone, code):
     """Отправляет код на почту или SMS. Возвращает (ok, error)."""
     if choice == 'email':
-        ok = send_email_code(email, code)
-        return ok, '' if ok else 'Не удалось отправить письмо'
+        return send_email_code(email, code)
     ok, error = send_sms(phone, f'Ваш код подтверждения Health Flow AI: {code}')
     if not ok:
         logger.error('SMS для %s не отправлено: %s', phone, error)

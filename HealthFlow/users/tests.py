@@ -22,7 +22,8 @@ class AuthFlowTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'name="confirmation_code"')
         self.assertFalse(User.objects.filter(email='new.user@example.com').exists())
-        self.assertTrue(cache.get('registration:email:new.user@example.com'))
+        reg_id = response.context['reg_id']
+        self.assertEqual(json.loads(cache.get(f'registration:{reg_id}'))['contact'], 'new.user@example.com')
 
     def test_registration_password_mismatch(self):
         response = self.client.post('/accounts/registration/', {
@@ -38,21 +39,25 @@ class AuthFlowTests(TestCase):
         self.assertContains(response, 'корректный номер')
 
     def test_confirm_registration_creates_user(self):
-        cache.set('registration:email:reg@example.com', json.dumps({
+        cache.set('registration:pending-reg', json.dumps({
+            'choice': 'email', 'contact': 'reg@example.com',
             'username': 'reg', 'password': 'Str0ngPass!', 'code': '424242', 'attempts': 0,
         }), timeout=900)
         response = self.client.post('/accounts/registration/confirm/', {
             'choice': 'email', 'contact': 'reg@example.com', 'confirmation_code': '424242',
+            'reg_id': 'pending-reg',
         })
         self.assertEqual(response.status_code, 200)
         self.assertTrue(User.objects.filter(email='reg@example.com').exists())
 
     def test_confirm_registration_wrong_code(self):
-        cache.set('registration:email:reg2@example.com', json.dumps({
+        cache.set('registration:reg2-pending', json.dumps({
+            'choice': 'email', 'contact': 'reg2@example.com',
             'username': 'reg2', 'password': 'Str0ngPass!', 'code': '424242', 'attempts': 0,
         }), timeout=900)
         self.client.post('/accounts/registration/confirm/', {
             'choice': 'email', 'contact': 'reg2@example.com', 'confirmation_code': '000000',
+            'reg_id': 'reg2-pending',
         })
         self.assertFalse(User.objects.filter(email='reg2@example.com').exists())
 

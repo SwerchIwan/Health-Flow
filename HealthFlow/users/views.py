@@ -1,5 +1,6 @@
 import json
 import random
+import secrets
 
 from django.conf import settings
 from django.contrib.auth import authenticate, get_user_model
@@ -23,12 +24,10 @@ def reg_page(request):
     return render(request, 'additionally/reg.html')
 
 
-def _pending_registration_key(choice, contact):
-    return f'registration:{choice}:{contact}'
-
-
-def _redirect_to_code_step(request, mode, choice, contact, code_shown=None, notice=None, error=None):
+def _redirect_to_code_step(request, mode, choice, contact, code_shown=None, notice=None, error=None, reg_id=None):
     payload = {'mode': mode, 'choice': choice, 'contact': contact}
+    if reg_id:
+        payload['reg_id'] = reg_id
     if code_shown:
         payload['code_shown'] = code_shown
     if notice:
@@ -83,25 +82,29 @@ def register_user(request):
         username = f'{username}_{random.randint(1000, 9999)}'
 
     code = f'{random.randint(100000, 999999)}'
-    cache.set(
-        _pending_registration_key(auth_choice, contact),
-        json.dumps({'username': username, 'password': password, 'code': code, 'attempts': 0}),
-        timeout=settings.VERIFICATION_CODE_TTL,
-    )
-
     sent, error = send_verification_code(
         auth_choice, email if auth_choice == 'email' else None,
         contact if auth_choice == 'phone' else None, code,
     )
-    code_shown = None
     if not sent:
-        if auth_choice == 'email':
-            return render(request, 'additionally/reg.html',
-                          {'error_message': 'Не удалось отправить письмо с кодом. Попробуйте позже.'})
-        code_shown = code if settings.SMS_SHOW_CODE_ON_FAILURE else None
-
-    return _redirect_to_code_step(request, 'register', auth_choice, contact, code_shown=code_shown,
-                                  notice='Код отправлен' if sent else 'SMS не удалось отправить')
+        cache.delete('registration_code')
+    else:
+        # Кэш общий для всех воркеров gunicorn, поэтому код привязывается к случайному id,
+        # а id передаётся в форме подтверждения.
+        reg_id = secrets.token_urlsafe(12)
+        cache.set(f'registration:{reg_id}',
+                  json.dumps({'choice': auth_choice, 'contact': contact, 'username': username,
+                              'password': password, 'code': code, 'attempts': 0}),
+                  timeout=settings.VERIFICATION_CODE_TTL)
+        return _redirect_to_code_step(request, 'register', auth_choice, contact, reg_id=reg_id,
+                                      notice='Код отправлен на почту' if auth_choice == 'email' else 'SMS отправлено')
+    if auth_choice == 'email':
+        return render(request, 'additionally/reg.html',
+                      {'error_message': f'Не удалось отправить письмо с кодом: {error}'})
+    # SMS-шлюз (Twilio) не настроен — подтвердить номер негде, предлагаем почту.
+    return render(request, 'additionally/reg.html',
+                  {'error_message': 'Регистрация по телефону временно недоступна: '
+                                    'подтверждение по SMS не работает. Зарегистрируйтесь по почте.'})
 
 
 def confirm_registration_code(request):
@@ -111,19 +114,22 @@ def confirm_registration_code(request):
     auth_choice = request.POST.get('choice')
     contact = (request.POST.get('contact') or request.POST.get('phone') or '').strip()
     entered = (request.POST.get('confirmation_code') or '').strip()
+    reg_id = (request.POST.get('reg_id') or '').strip()
 
     if auth_choice == 'phone':
         contact = normalize_phone(contact) or contact
     elif auth_choice == 'email':
         contact = contact.lower()
 
-    cache_key = _pending_registration_key(auth_choice, contact)
-    user_data_json = cache.get(cache_key)
+    cache_key = f'registration:{reg_id}' if reg_id else ''
+    user_data_json = cache.get(cache_key) if cache_key else None
     if not user_data_json:
         return _redirect_to_code_step(request, 'register', auth_choice, contact,
                                       error='Код истёк. Пройдите регистрацию заново.')
 
     user_data = json.loads(user_data_json)
+    auth_choice = user_data['choice']
+    contact = user_data['contact']
     if entered != user_data['code']:
         user_data['attempts'] += 1
         if user_data['attempts'] >= CODE_ATTEMPTS_LIMIT:
@@ -131,7 +137,8 @@ def confirm_registration_code(request):
             return _redirect_to_code_step(request, 'register', auth_choice, contact,
                                           error='Слишком много неверных попыток. Зарегистрируйтесь заново.')
         cache.set(cache_key, json.dumps(user_data), timeout=settings.VERIFICATION_CODE_TTL)
-        return _redirect_to_code_step(request, 'register', auth_choice, contact, error='Неверный код.')
+        return _redirect_to_code_step(request, 'register', auth_choice, contact, reg_id=reg_id,
+                                      error='Неверный код.')
 
     if User.objects.filter(username=user_data['username']).exists():
         cache.delete(cache_key)
@@ -209,15 +216,22 @@ def login_user(request):
         code = f'{random.randint(100000, 999999)}'
         cache.set(f'login_code:{user.pk}', json.dumps({'code': code, 'attempts': 0}),
                   timeout=settings.VERIFICATION_CODE_TTL)
-        sent, _ = send_verification_code(
+        sent, error = send_verification_code(
             auth_choice,
             user.email if auth_choice == 'email' else None,
             user.phone if auth_choice == 'phone' else None,
             code,
         )
-        context = {'code_sent': True, 'notice': 'Код отправлен.' if sent else 'Не удалось отправить код.'}
-        if not sent and auth_choice == 'phone' and settings.SMS_SHOW_CODE_ON_FAILURE:
-            context['code_shown'] = code
+        context = {'code_sent': True}
+        if sent:
+            context['notice'] = 'Код отправлен на почту.' if auth_choice == 'email' else 'Код отправлен по SMS.'
+        else:
+            cache.delete(f'login_code:{user.pk}')
+            context['error_message'] = (
+                f'Не удалось отправить код: {error}. Попробуйте войти по паролю.'
+                if auth_choice == 'email'
+                else 'Вход по SMS недоступен. Введите пароль.'
+            )
         return render(request, 'additionally/aut-step-two.html', context)
 
     if action == 'code':

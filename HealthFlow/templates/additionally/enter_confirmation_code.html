@@ -9,6 +9,7 @@
     {% csrf_token %}
     <input type="hidden" name="choice" value="{{ choice }}">
     <input type="hidden" name="contact" value="{{ contact }}">
+    {% if reg_id %}<input type="hidden" name="reg_id" value="{{ reg_id }}">{% endif %}
     <input class="input" type="text" id="confirmation_code" name="confirmation_code" placeholder="Код подтверждения"
            inputmode="numeric" autocomplete="one-time-code" maxlength="6" required>
     <button class="btn btn--dark btn--full" type="submit">Подтвердить</button>
