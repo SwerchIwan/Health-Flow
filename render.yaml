@@ -1,0 +1,49 @@
+databases:
+  - name: healthflow-db
+    databaseName: healthflow
+    plan: free
+    region: frankfurt
+
+services:
+  - type: web
+    name: healthflow
+    runtime: python
+    plan: free
+    region: frankfurt
+    buildCommand: pip install -r requirements-prod.txt && python HealthFlow/manage.py collectstatic --noinput
+    startCommand: cd HealthFlow && python manage.py migrate --noinput && gunicorn HealthFlow.wsgi:application --bind 0.0.0.0:$PORT --workers 2 --timeout 120 --access-logfile -
+    healthCheckPath: /
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.3
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      - key: DJANGO_DEBUG
+        value: "False"
+      - key: DJANGO_ALLOWED_HOSTS
+        value: .onrender.com,localhost,127.0.0.1
+      - key: DATABASE_URL
+        fromDatabase:
+          name: healthflow-db
+          property: connectionString
+      - key: SECURE_PROXY_SSL_HEADER
+        value: "1"
+
+  - type: worker
+    name: healthflow-bot
+    runtime: python
+    plan: free
+    region: frankfurt
+    buildCommand: pip install -r requirements-prod.txt
+    startCommand: cd HealthFlow && python tg.py
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.3
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: SITE_URL
+        sync: false
+      - key: DATABASE_URL
+        fromDatabase:
+          name: healthflow-db
+          property: connectionString

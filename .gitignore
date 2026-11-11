@@ -11,3 +11,4 @@ staticfiles/
 vibe_images/
 
 lan_qr.png
+.local/
