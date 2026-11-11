@@ -41,7 +41,11 @@
   и `seed_patients`. Токен = HMAC-SHA256 от `SECRET_KEY` сервиса (первые 20 hex),
   считается скриптом: `python -c "import hmac,hashlib;print(hmac.new(b'healthflow-seed:'+SECRET_KEY.encode(),b'demo-data',hashlib.sha256).hexdigest()[:20])"`.
   Неверный токен → 404. После засева вьюху удалить и задеплоить снова.
-  Готовый URL (для текущего `DJANGO_SECRET_KEY` web-сервиса) лежит в `.local/seed_url.txt`.
+- Блокер seed-URL: `DJANGO_SECRET_KEY` на Render был сгенерирован скриптом
+  (`render_env.py` → `secrets.token_urlsafe(50)`), в `.local/render_state.json` не сохранён.
+  Поэтому токен неизвестен: `/internal/seed/191e…/` → 404 (роут работает — POST даёт 403).
+  Варианты: (а) прислать текущее значение `DJANGO_SECRET_KEY` из Dashboard → Environment;
+  (б) перегенерировать ключ (`render_env.py`), учесть, что сбросятся сессии и прочие подписи от `SECRET_KEY`.
 
 ## Что делать дальше (по порядку)
 
@@ -52,8 +56,8 @@
    `postgresql://<user>:<pass>@dpg-dbprh8jl550s738n0k1g-a:5432/<db>` (порт обязателен).
 2. После статуса **Live**: открыть https://healthflow-web.onrender.com
    (`/`, `/specialists/`, `/accounts/`, `/admin/`).
-3. Демо-данные — открыть seed-URL (см. `.local/seed_url.txt`) один раз, пока вьюха
-   задеплоена; в ответе JSON с числом специалистов и хвостом лога.
+3. Демо-данные — открыть seed-URL один раз, пока вьюха задеплоена; в ответе JSON
+   с числом специалистов и хвостом лога. Токен считается от `DJANGO_SECRET_KEY` сервиса.
    Пациенты: `patient_demo_1..3`, пароль `PatientDemo2026!`.
 4. Суперпользователь — в том же Shell: `cd HealthFlow && python manage.py createsuperuser`
    (нужен свой пароль; можно `DJANGO_SUPERUSER_PASSWORD=... python manage.py createsuperuser --noinput
