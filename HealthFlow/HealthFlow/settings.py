@@ -215,6 +215,10 @@ DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', EMAIL_HOST_USER)
 SERVER_EMAIL = EMAIL_HOST_USER
 EMAIL_ADMIN = EMAIL_HOST_USER
 
+# Render блокирует исходящий SMTP, поэтому письма отправляются через HTTPS API Resend
+# (отправитель должен быть подтверждён в аккаунте Resend). Без ключа — обычный SMTP.
+RESEND_API_KEY = os.getenv('RESEND_API_KEY', '').strip()
+
 SITE_URL = os.getenv('SITE_URL', '').rstrip('/')
 VERIFICATION_CODE_TTL = 15 * 60
 

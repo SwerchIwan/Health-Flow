@@ -1,5 +1,7 @@
+import json
 import logging
 import re
+import urllib.request
 
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
@@ -24,12 +26,37 @@ def normalize_phone(raw):
     return '+' + digits
 
 
+def _send_via_resend(to, subject, text_body, html_body):
+    payload = {
+        'from': settings.DEFAULT_FROM_EMAIL,
+        'to': [to],
+        'subject': subject,
+        'text': text_body,
+    }
+    if html_body:
+        payload['html'] = html_body
+    request = urllib.request.Request(
+        'https://api.resend.com/emails',
+        data=json.dumps(payload).encode(),
+        headers={'Authorization': f'Bearer {settings.RESEND_API_KEY}',
+                 'Content-Type': 'application/json'},
+        method='POST',
+    )
+    with urllib.request.urlopen(request, timeout=20) as response:
+        return response.status < 300
+
+
 def send_email(to, subject, template, context, text_body=''):
-    """Возвращает (ok, error): при сбое SMTP причина пишется в лог сервиса."""
+    """Возвращает (ok, error). С RESEND_API_KEY письмо идёт по HTTPS: SMTP-порты
+    на Render недоступны (`Network is unreachable`)."""
+    html_body = render_to_string(template, context) if template else ''
     try:
+        if settings.RESEND_API_KEY:
+            ok = _send_via_resend(to, subject, text_body, html_body)
+            return ok, '' if ok else 'Почтовый API отклонил письмо'
         message = EmailMultiAlternatives(subject, text_body, settings.DEFAULT_FROM_EMAIL, [to])
-        if template:
-            message.attach_alternative(render_to_string(template, context), 'text/html')
+        if html_body:
+            message.attach_alternative(html_body, 'text/html')
         message.send()
         return True, ''
     except Exception as ex:
