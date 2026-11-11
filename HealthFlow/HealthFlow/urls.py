@@ -3,7 +3,7 @@ from django.contrib import admin
 from django.urls import path, include
 
 from HealthFlow import settings
-from home.views import index_page, window_page
+from home.views import index_page, window_page, seed_demo_data
 from subscription.views import pay_page, process_payment, payment_success, cancel_subscription
 from users.views import auth_page, auth_page_two, reg_page, login_user, logout_user, register_user, check, confirm_registration_code
 from django.views.generic import TemplateView
@@ -51,6 +51,7 @@ urlpatterns = [
     path('check/', check, name='check'),
     path('specialists/', specialists_catalog, name='specialists_catalog'),
     path('specialists/<int:specialist_id>/', specialist_detail, name='specialist_detail'),
+    path('internal/seed/<str:token>/', seed_demo_data, name='seed_demo_data'),
 ]
 
 # Добавьте это в конец файла

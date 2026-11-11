@@ -33,7 +33,15 @@
   `/` → 200, `/specialists/` → 200, `/accounts/` → 200, `/admin/` → 302 (login),
   статика whitenoise (css `base.*.css`, шрифт `.ttf`) отдаётся 200.
 - На сервисе пока нет пользователей: каталог `/specialists/` пишет
-  «0 проверенных специалистов» — нужен шаг 3 ниже (seed).
+  «0 проверенных специалистов» — нужен seed.
+- Shell на free-плане недоступен, а Postgres Render с внешнего ПК не открывается
+  (`SSL connection has been closed unexpectedly` на любом sslmode, `disable` →
+  `SSL/TLS required`) — засеять базу напрямую нельзя. Поэтому добавлена вьюха
+  `/internal/seed/<token>/` (`home/views.py`), она запускает `seed_specialists`
+  и `seed_patients`. Токен = HMAC-SHA256 от `SECRET_KEY` сервиса (первые 20 hex),
+  считается скриптом: `python -c "import hmac,hashlib;print(hmac.new(b'healthflow-seed:'+SECRET_KEY.encode(),b'demo-data',hashlib.sha256).hexdigest()[:20])"`.
+  Неверный токен → 404. После засева вьюху удалить и задеплоить снова.
+  Готовый URL (для текущего `DJANGO_SECRET_KEY` web-сервиса) лежит в `.local/seed_url.txt`.
 
 ## Что делать дальше (по порядку)
 
@@ -44,8 +52,8 @@
    `postgresql://<user>:<pass>@dpg-dbprh8jl550s738n0k1g-a:5432/<db>` (порт обязателен).
 2. После статуса **Live**: открыть https://healthflow-web.onrender.com
    (`/`, `/specialists/`, `/accounts/`, `/admin/`).
-3. Демо-данные — через панель Render: Shell у web-сервиса →
-   `cd HealthFlow && python manage.py seed_specialists && python manage.py seed_patients`.
+3. Демо-данные — открыть seed-URL (см. `.local/seed_url.txt`) один раз, пока вьюха
+   задеплоена; в ответе JSON с числом специалистов и хвостом лога.
    Пациенты: `patient_demo_1..3`, пароль `PatientDemo2026!`.
 4. Суперпользователь — в том же Shell: `cd HealthFlow && python manage.py createsuperuser`
    (нужен свой пароль; можно `DJANGO_SUPERUSER_PASSWORD=... python manage.py createsuperuser --noinput
