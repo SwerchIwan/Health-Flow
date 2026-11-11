@@ -87,24 +87,27 @@ def register_user(request):
         contact if auth_choice == 'phone' else None, code,
     )
     if not sent:
-        cache.delete('registration_code')
-    else:
-        # Кэш общий для всех воркеров gunicorn, поэтому код привязывается к случайному id,
-        # а id передаётся в форме подтверждения.
-        reg_id = secrets.token_urlsafe(12)
-        cache.set(f'registration:{reg_id}',
-                  json.dumps({'choice': auth_choice, 'contact': contact, 'username': username,
-                              'password': password, 'code': code, 'attempts': 0}),
-                  timeout=settings.VERIFICATION_CODE_TTL)
-        return _redirect_to_code_step(request, 'register', auth_choice, contact, reg_id=reg_id,
-                                      notice='Код отправлен на почту' if auth_choice == 'email' else 'SMS отправлено')
-    if auth_choice == 'email':
-        return render(request, 'additionally/reg.html',
-                      {'error_message': f'Не удалось отправить письмо с кодом: {error}'})
-    # SMS-шлюз (Twilio) не настроен — подтвердить номер негде, предлагаем почту.
-    return render(request, 'additionally/reg.html',
-                  {'error_message': 'Регистрация по телефону временно недоступна: '
-                                    'подтверждение по SMS не работает. Зарегистрируйтесь по почте.'})
+        if auth_choice == 'email':
+            cache.delete('registration_code')
+            return render(request, 'additionally/reg.html',
+                          {'error_message': f'Не удалось отправить письмо с кодом: {error}'})
+        if not settings.SMS_SHOW_CODE_ON_FAILURE:
+            cache.delete('registration_code')
+            # SMS-шлюз (Twilio) не настроен — подтвердить номер негде, предлагаем почту.
+            return render(request, 'additionally/reg.html',
+                          {'error_message': 'Регистрация по телефону временно недоступна: '
+                                            'подтверждение по SMS не работает. Зарегистрируйтесь по почте.'})
+    # Кэш общий для всех воркеров gunicorn, поэтому код привязывается к случайному id,
+    # а id передаётся в форме подтверждения.
+    reg_id = secrets.token_urlsafe(12)
+    cache.set(f'registration:{reg_id}',
+              json.dumps({'choice': auth_choice, 'contact': contact, 'username': username,
+                          'password': password, 'code': code, 'attempts': 0}),
+              timeout=settings.VERIFICATION_CODE_TTL)
+    notice = ('Код отправлен на почту' if auth_choice == 'email' else 'SMS отправлено') if sent else ''
+    code_shown = None if sent else code
+    return _redirect_to_code_step(request, 'register', auth_choice, contact, reg_id=reg_id,
+                                  code_shown=code_shown, notice=notice)
 
 
 def confirm_registration_code(request):
