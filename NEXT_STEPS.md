@@ -29,7 +29,11 @@
   Исправлено: `g4f==0.3.1.0` добавлен в `requirements-prod.txt`; проверено в чистом venv —
   `pip install -r requirements-prod.txt`, `manage.py check` (DEBUG=False), страницы `/`,
   `/specialists/`, `/accounts/` → 200, все 7 AI-провайдеров на месте, 35 тестов OK.
-  Нужен коммит + push, чтобы Render пересобрал сервис.
+  Коммит `245d381` запушен, Render пересобрал:
+  `/` → 200, `/specialists/` → 200, `/accounts/` → 200, `/admin/` → 302 (login),
+  статика whitenoise (css `base.*.css`, шрифт `.ttf`) отдаётся 200.
+- На сервисе пока нет пользователей: каталог `/specialists/` пишет
+  «0 проверенных специалистов» — нужен шаг 3 ниже (seed).
 
 ## Что делать дальше (по порядку)
 
