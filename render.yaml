@@ -11,7 +11,7 @@ services:
     plan: free
     region: frankfurt
     buildCommand: pip install -r requirements-prod.txt && python HealthFlow/manage.py collectstatic --noinput
-    startCommand: cd HealthFlow && python manage.py migrate --noinput && gunicorn HealthFlow.wsgi:application --bind 0.0.0.0:$PORT --workers 2 --timeout 120 --access-logfile -
+    startCommand: bash -c 'cd HealthFlow && python manage.py migrate --noinput && gunicorn HealthFlow.wsgi:application --bind 0.0.0.0:$PORT --workers 2 --timeout 120 --access-logfile -'
     healthCheckPath: /
     envVars:
       - key: PYTHON_VERSION
@@ -35,7 +35,7 @@ services:
     plan: free
     region: frankfurt
     buildCommand: pip install -r requirements-prod.txt
-    startCommand: cd HealthFlow && python tg.py
+    startCommand: python tg_worker.py
     envVars:
       - key: PYTHON_VERSION
         value: 3.12.3
